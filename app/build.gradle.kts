@@ -87,4 +87,8 @@ dependencies {
   implementation("com.squareup.retrofit2:retrofit:2.11.0")
   implementation("com.squareup.retrofit2:converter-gson:2.11.0")
   implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+  // ExecuTorch for Edge AI
+  // Include the prebuilt AARs from your libs/ folder (e.g., executorch.aar, executorch-qnn.aar)
+  implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
 }
