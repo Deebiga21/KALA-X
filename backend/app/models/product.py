@@ -7,6 +7,7 @@ class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)
+    offline_id = Column(String, unique=True, index=True, nullable=True) # Used for Edge syncing
     user_id = Column(Integer, ForeignKey("users.id"))
 
     name = Column(String, index=True)

@@ -25,6 +25,7 @@ class ProductPriceUpdate(BaseModel):
 
 class Product(ProductBase):
     id: int
+    offline_id: Optional[str] = None
     user_id: int
     original_image: Optional[str] = None
     enhanced_image: Optional[str] = None
@@ -69,3 +70,24 @@ class CommerceScoreResponse(BaseModel):
 class PublishResponse(BaseModel):
     can_publish: bool
     missing_fields: List[str]
+
+class SyncProductRequest(BaseModel):
+    offline_id: str
+    name: str
+    category: str
+    material: str
+    description: Optional[str] = None
+    seo_title: Optional[str] = None
+    keywords: Optional[str] = None
+    raw_material_cost: float = 0.0
+    labour_cost: float = 0.0
+    packaging_cost: float = 0.0
+    other_cost: float = 0.0
+    total_cost: float = 0.0
+    recommended_price: Optional[float] = None
+    pricing_confidence: Optional[int] = None
+    commerce_score: int = 0
+    dimensions: Optional[str] = None
+    weight: Optional[str] = None
+    status: str = "draft"
+

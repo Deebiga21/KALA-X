@@ -5,7 +5,7 @@ import os
 
 from app.core.database import engine, Base
 from app.models import __init__ # to register all models
-from app.routes import home, products, processing, insights, profile, notifications
+from app.routes import home, products, processing, insights, profile, notifications, sync
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -28,6 +28,7 @@ os.makedirs("uploads/enhanced", exist_ok=True)
 # Mount static files for images
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
+app.include_router(sync.router, prefix="/api/sync", tags=["Sync"])
 app.include_router(home.router, prefix="/api/home", tags=["Home"])
 app.include_router(products.router, prefix="/api/products", tags=["Products"])
 app.include_router(processing.router, prefix="/api/products", tags=["Processing"])
