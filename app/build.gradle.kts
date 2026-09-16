@@ -2,6 +2,7 @@ plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.compose.compiler)
   alias(libs.plugins.kotlin.serialization)
+  alias(libs.plugins.ksp)
 }
 
 android {
@@ -94,4 +95,15 @@ dependencies {
   // ExecuTorch for Edge AI
   // Include the prebuilt AARs from your libs/ folder (e.g., executorch.aar, executorch-qnn.aar)
   implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
+
+  // Room
+  implementation(libs.androidx.room.runtime)
+  implementation(libs.androidx.room.ktx)
+  ksp(libs.androidx.room.compiler)
+
+  // Serialization
+  implementation(libs.kotlinx.serialization.json)
+
+  // MediaPipe
+  implementation(libs.mediapipe.tasks.vision)
 }
