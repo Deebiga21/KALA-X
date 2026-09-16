@@ -1,19 +1,27 @@
 package com.example.kalax.ui.product
 
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.io.File
+import java.io.FileOutputStream
+import java.util.UUID
 
 @Composable
 fun CaptureScreen(
@@ -21,6 +29,46 @@ fun CaptureScreen(
     onBack: () -> Unit,
     onNext: () -> Unit
 ) {
+    val context = LocalContext.current
+    var isUploading by remember { mutableStateOf(false) }
+
+    fun processBitmap(bitmap: Bitmap?) {
+        if (bitmap == null) return
+        isUploading = true
+        val file = File(context.cacheDir, "capture_${UUID.randomUUID()}.jpg")
+        val out = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+        out.flush()
+        out.close()
+        viewModel.uploadImage(file)
+        viewModel.enhanceImage() // Start edge AI enhancement immediately
+        isUploading = false
+        onNext()
+    }
+
+    fun processUri(uri: Uri?) {
+        if (uri == null) return
+        isUploading = true
+        val file = File(context.cacheDir, "gallery_${UUID.randomUUID()}.jpg")
+        context.contentResolver.openInputStream(uri)?.use { input ->
+            file.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+        viewModel.uploadImage(file)
+        viewModel.enhanceImage()
+        isUploading = false
+        onNext()
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        processBitmap(bitmap)
+    }
+
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        processUri(uri)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -32,7 +80,7 @@ fun CaptureScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column {
@@ -53,25 +101,31 @@ fun CaptureScreen(
             
             Spacer(modifier = Modifier.height(32.dp))
             
-            Button(
-                onClick = onNext, // Demo: instantly go next
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
-            ) {
-                Icon(Icons.Outlined.CameraAlt, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Open Camera")
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            OutlinedButton(
-                onClick = onNext, // Demo: instantly go next
-                modifier = Modifier.fillMaxWidth().height(56.dp)
-            ) {
-                Icon(Icons.Outlined.PhotoLibrary, contentDescription = null, tint = Color(0xFF06B6D4))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Upload from Gallery", color = Color.White)
+            if (isUploading) {
+                CircularProgressIndicator(color = Color(0xFF06B6D4))
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("Uploading...", color = Color.White)
+            } else {
+                Button(
+                    onClick = { cameraLauncher.launch(null) },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
+                ) {
+                    Icon(Icons.Outlined.CameraAlt, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Open Camera")
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                OutlinedButton(
+                    onClick = { galleryLauncher.launch("image/*") },
+                    modifier = Modifier.fillMaxWidth().height(56.dp)
+                ) {
+                    Icon(Icons.Outlined.PhotoLibrary, contentDescription = null, tint = Color(0xFF06B6D4))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Upload from Gallery", color = Color.White)
+                }
             }
         }
         

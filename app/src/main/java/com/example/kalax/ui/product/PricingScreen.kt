@@ -2,18 +2,23 @@ package com.example.kalax.ui.product
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PricingScreen(
     viewModel: ProductViewModel,
@@ -25,17 +30,8 @@ fun PricingScreen(
 
     LaunchedEffect(isCalculating) {
         if (isCalculating) {
-            delay(1500)
-            viewModel.updateDraft { 
-                it.copy(
-                    rawCost = 300,
-                    labourCost = 200,
-                    packagingCost = 50,
-                    otherCost = 50,
-                    totalCost = 600,
-                    recommendedPrice = 849
-                )
-            }
+            delay(1000)
+            viewModel.calculatePrice()
             isCalculating = false
         }
     }
@@ -51,49 +47,133 @@ fun PricingScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text("Smart Pricing", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("Find a fair and competitive price", color = Color.Gray, fontSize = 12.sp)
+                Text("Smart Pricing Assistant", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("Find a fair and competitive price.", color = Color.Gray, fontSize = 12.sp)
             }
         }
         
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
         ) {
-            Text("Input Costs (₹)", color = Color.White, fontWeight = FontWeight.Bold)
+            Text("Cost Breakdown (₹)", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Spacer(modifier = Modifier.height(16.dp))
             
-            if (draft.recommendedPrice == 0) {
+            CostInput("Raw Material Cost", draft.rawCost.toString()) { 
+                viewModel.updateDraft { d -> d.copy(rawCost = it.toIntOrNull() ?: 0) } 
+            }
+            CostInput("Labour Cost", draft.labourCost.toString()) { 
+                viewModel.updateDraft { d -> d.copy(labourCost = it.toIntOrNull() ?: 0) } 
+            }
+            CostInput("Packaging Cost", draft.packagingCost.toString()) { 
+                viewModel.updateDraft { d -> d.copy(packagingCost = it.toIntOrNull() ?: 0) } 
+            }
+            CostInput("Other Cost", draft.otherCost.toString()) { 
+                viewModel.updateDraft { d -> d.copy(otherCost = it.toIntOrNull() ?: 0) } 
+            }
+            
+            Divider(color = Color.White.copy(0.1f), modifier = Modifier.padding(vertical = 12.dp))
+            
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("Total Cost", color = Color.White, fontWeight = FontWeight.Bold)
+                Text("₹${draft.totalCost}", color = Color(0xFFF59E0B), fontWeight = FontWeight.Bold)
+            }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            if (draft.recommendedPrice == 0 || isCalculating) {
                 Button(
                     onClick = { isCalculating = true },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6).copy(0.2f))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6).copy(0.2f)),
+                    enabled = !isCalculating
                 ) {
                     if (isCalculating) {
                         CircularProgressIndicator(color = Color(0xFF3B82F6), modifier = Modifier.size(24.dp))
                     } else {
-                        Text("Generate AI Price", color = Color(0xFF3B82F6))
+                        Text("Calculate Price", color = Color(0xFF3B82F6), fontWeight = FontWeight.Bold)
                     }
                 }
             } else {
-                Text("Recommended Price", color = Color.Gray)
-                Text("₹${draft.recommendedPrice}", color = Color(0xFF06B6D4), fontSize = 48.sp, fontWeight = FontWeight.Bold)
-                
-                Spacer(modifier = Modifier.height(32.dp))
-                
-                Button(
-                    onClick = onNext,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4))
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Accept ₹${draft.recommendedPrice}", color = Color.Black, fontWeight = FontWeight.Bold)
+                    Column(modifier = Modifier.padding(24.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column {
+                                Text("Market Price Range", color = Color.Gray, fontSize = 12.sp)
+                                Text("₹${(draft.totalCost * 1.3).toInt()} - ₹${(draft.totalCost * 1.6).toInt()}", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("Confidence", color = Color.Gray, fontSize = 12.sp)
+                                Text("87%", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        Text("Recommended Price", color = Color.Gray, fontSize = 12.sp)
+                        Text("₹${draft.recommendedPrice}", color = Color(0xFF06B6D4), fontSize = 36.sp, fontWeight = FontWeight.Bold)
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Outlined.Info, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Based on product cost, category, and market signals.", color = Color.Gray, fontSize = 10.sp)
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    OutlinedButton(
+                        onClick = { isCalculating = true },
+                        modifier = Modifier.weight(1f).height(56.dp)
+                    ) {
+                        Text("Refresh", color = Color.White)
+                    }
+                    Button(
+                        onClick = onNext,
+                        modifier = Modifier.weight(1f).height(56.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4))
+                    ) {
+                        Text("Accept ₹${draft.recommendedPrice}", color = Color.Black, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CostInput(label: String, value: String, onValueChange: (String) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(label, color = Color.Gray, fontSize = 14.sp)
+        OutlinedTextField(
+            value = if (value == "0") "" else value,
+            onValueChange = onValueChange,
+            modifier = Modifier.width(100.dp).height(48.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedBorderColor = Color(0xFF06B6D4),
+                unfocusedBorderColor = Color(0xFF1E293B)
+            ),
+            singleLine = true
+        )
     }
 }

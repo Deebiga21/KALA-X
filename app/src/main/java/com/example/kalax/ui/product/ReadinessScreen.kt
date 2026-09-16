@@ -1,9 +1,11 @@
 package com.example.kalax.ui.product
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,9 +24,12 @@ fun ReadinessScreen(
     onNext: () -> Unit
 ) {
     val draft by viewModel.draft.collectAsState()
-    
+    var isCalculating by remember { mutableStateOf(true) }
+
     LaunchedEffect(Unit) {
-        viewModel.updateDraft { it.copy(score = 86) }
+        delay(1000)
+        viewModel.getCommerceScore()
+        isCalculating = false
     }
 
     Column(
@@ -38,60 +43,137 @@ fun ReadinessScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column {
                 Text("Commerce Readiness", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("Ensure your product is ready", color = Color.Gray, fontSize = 12.sp)
+                Text("Optimize for success", color = Color.Gray, fontSize = 12.sp)
             }
         }
         
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(16.dp))
         
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("${draft.score}", color = Color.White, fontSize = 64.sp, fontWeight = FontWeight.Bold)
-            Text("Out of 100", color = Color.Gray)
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            if (draft.dimensions.isEmpty()) {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF59E0B).copy(0.1f)),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFF59E0B))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Missing Information", color = Color(0xFFF59E0B), fontWeight = FontWeight.Bold)
+            if (isCalculating) {
+                Spacer(modifier = Modifier.height(64.dp))
+                CircularProgressIndicator(color = Color(0xFF06B6D4), modifier = Modifier.size(64.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+                Text("Analyzing your product listing...", color = Color.Gray)
+            } else {
+                // Score Ring
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(160.dp)) {
+                    CircularProgressIndicator(
+                        progress = { draft.score / 100f },
+                        modifier = Modifier.fillMaxSize(),
+                        color = Color(0xFF06B6D4),
+                        trackColor = Color(0xFF1E293B),
+                        strokeWidth = 12.dp
+                    )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("${draft.score}", color = Color.White, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+                        Text("out of 100", color = Color.Gray, fontSize = 12.sp)
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                // Score Breakdown
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text("Score Breakdown", color = Color.White, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    BreakdownRow("Product Image", if (draft.enhancedImageUri != null) 95 else 40)
+                    BreakdownRow("Description", if (draft.description.isNotEmpty()) 88 else 30)
+                    BreakdownRow("Pricing", if (draft.recommendedPrice > 0) 92 else 10)
+                    BreakdownRow("Category", if (draft.category.isNotEmpty()) 91 else 10)
+                    BreakdownRow("Completeness", if (draft.dimensions.isNotEmpty()) 100 else 76)
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                if (draft.dimensions.isEmpty()) {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF59E0B).copy(0.1f)),
+                        border = BorderStroke(1.dp, Color(0xFFF59E0B).copy(0.3f)),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFF59E0B))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Product dimensions missing", color = Color(0xFFF59E0B), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("Add dimensions to reach 95+", color = Color.White, fontSize = 12.sp)
+                            
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Button(
+                                onClick = { 
+                                    viewModel.updateDraft { it.copy(dimensions = "12x8x6") }
+                                    viewModel.getCommerceScore()
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B)),
+                                modifier = Modifier.height(36.dp)
+                            ) {
+                                Text("Add Dimensions", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
-                        Text("Add product dimensions to boost score.", color = Color.White, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(onClick = { viewModel.updateDraft { it.copy(dimensions = "12x8x6", score = 96) } }) {
-                            Text("Add Dimensions")
+                    }
+                } else {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF10B981).copy(0.1f)),
+                        border = BorderStroke(1.dp, Color(0xFF10B981).copy(0.3f)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text("Ready for Market! 🎉", color = Color(0xFF10B981), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
-            } else {
-                Text("Ready to Publish! 🎉", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            }
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            Button(
-                onClick = onNext,
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4))
-            ) {
-                Text("Review Final Listing", color = Color.Black, fontWeight = FontWeight.Bold)
             }
         }
         
         Spacer(modifier = Modifier.weight(1f))
+
+        if (!isCalculating) {
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 24.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                OutlinedButton(
+                    onClick = onNext,
+                    modifier = Modifier.weight(1f).height(56.dp)
+                ) {
+                    Text("Skip", color = Color.White)
+                }
+                Button(
+                    onClick = onNext,
+                    modifier = Modifier.weight(1.5f).height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4))
+                ) {
+                    Text("Complete Product", color = Color.Black, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun BreakdownRow(label: String, score: Int) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(label, color = Color.Gray, fontSize = 12.sp, modifier = Modifier.weight(1f))
+        LinearProgressIndicator(
+            progress = { score / 100f },
+            modifier = Modifier.weight(1.5f).height(6.dp),
+            color = Color(0xFF06B6D4),
+            trackColor = Color(0xFF1E293B)
+        )
+        Text("$score", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(32.dp).padding(start = 8.dp))
     }
 }

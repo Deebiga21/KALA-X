@@ -2,9 +2,11 @@ package com.example.kalax.ui.product
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Mic
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,33 +16,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VoiceCatalogScreen(
     viewModel: ProductViewModel,
     onBack: () -> Unit,
     onNext: () -> Unit
 ) {
-    var state by remember { mutableStateOf("idle") } // idle, recording, processing, done
-
-    LaunchedEffect(state) {
-        if (state == "recording") {
-            delay(2000)
-            state = "processing"
-            delay(2000)
-            viewModel.updateDraft { 
-                it.copy(
-                    name = "Handmade Bamboo Basket",
-                    category = "Home & Lifestyle",
-                    material = "Natural Bamboo",
-                    description = "A beautifully handcrafted bamboo basket made using traditional weaving techniques."
-                )
-            }
-            state = "done"
-        }
-    }
-
+    var state by remember { mutableStateOf("idle") } // idle, recording, processing, text_entry, done
     val draft by viewModel.draft.collectAsState()
+    val scope = rememberCoroutineScope()
+    var fallbackText by remember { mutableStateOf("") }
+    var selectedLanguage by remember { mutableStateOf("Tamil") }
 
     Column(
         modifier = Modifier
@@ -53,15 +42,35 @@ fun VoiceCatalogScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text("Describe Product", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("Speak naturally in your language", color = Color.Gray, fontSize = 12.sp)
+                Text("Describe your product", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("Speak naturally in your language.", color = Color.Gray, fontSize = 12.sp)
             }
         }
         
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Language Selector
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            listOf("Tamil", "Hindi", "English").forEach { lang ->
+                FilterChip(
+                    selected = selectedLanguage == lang,
+                    onClick = { selectedLanguage = lang },
+                    label = { Text(lang, color = if (selectedLanguage == lang) Color.White else Color.Gray) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFF06B6D4).copy(alpha = 0.2f),
+                        selectedLabelColor = Color(0xFF06B6D4)
+                    )
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.weight(1f))
         
         Column(
@@ -70,51 +79,126 @@ fun VoiceCatalogScreen(
         ) {
             if (state == "idle") {
                 FloatingActionButton(
-                    onClick = { state = "recording" },
-                    containerColor = Color(0xFF06B6D4),
-                    modifier = Modifier.size(80.dp)
+                    onClick = {
+                        state = "recording"
+                        scope.launch {
+                            delay(2500) // Simulating user talking
+                            state = "processing"
+                            viewModel.processVoice(selectedLanguage)
+                            delay(1000) // Simulating whisper process
+                            viewModel.generateCatalog()
+                            delay(2000) // Simulating catalog gen
+                            state = "done"
+                        }
+                    },
+                    containerColor = Color(0xFF06B6D4).copy(alpha = 0.2f),
+                    contentColor = Color(0xFF06B6D4),
+                    modifier = Modifier.size(100.dp),
+                    shape = RoundedCornerShape(50.dp)
                 ) {
-                    Icon(Icons.Outlined.Mic, contentDescription = null, modifier = Modifier.size(40.dp))
+                    Icon(Icons.Outlined.Mic, contentDescription = null, modifier = Modifier.size(48.dp))
                 }
+                Spacer(modifier = Modifier.height(32.dp))
+                Text("Tap to start recording", color = Color.Gray, fontSize = 14.sp)
+                
                 Spacer(modifier = Modifier.height(24.dp))
-                Text("Tap microphone to start", color = Color.Gray)
+                TextButton(onClick = { state = "text_entry" }) {
+                    Text("Or type manually", color = Color(0xFF06B6D4))
+                }
             } else if (state == "recording") {
                 FloatingActionButton(
-                    onClick = {  },
-                    containerColor = Color.Red.copy(0.5f),
-                    modifier = Modifier.size(80.dp)
+                    onClick = { /* Stop handled implicitly in this demo flow */ },
+                    containerColor = Color.Red.copy(0.2f),
+                    contentColor = Color.Red,
+                    modifier = Modifier.size(100.dp),
+                    shape = RoundedCornerShape(50.dp)
                 ) {
-                    Icon(Icons.Outlined.Mic, contentDescription = null, tint = Color.Red, modifier = Modifier.size(40.dp))
+                    Icon(Icons.Outlined.Mic, contentDescription = null, modifier = Modifier.size(48.dp))
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                Text("Recording...", color = Color.Red)
+                Spacer(modifier = Modifier.height(32.dp))
+                Text("Listening...", color = Color.Red)
             } else if (state == "processing") {
                 CircularProgressIndicator(color = Color(0xFF06B6D4))
                 Spacer(modifier = Modifier.height(24.dp))
-                Text("Understanding voice...", color = Color.Gray)
-            } else {
-                // Done state
-                Text("AI Generated Catalog", color = Color(0xFF06B6D4), fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(16.dp))
+                Text("AI is generating your catalog...", color = Color.Gray)
+            } else if (state == "text_entry") {
                 OutlinedTextField(
-                    value = draft.name,
-                    onValueChange = { val newName = it; viewModel.updateDraft { it.copy(name = newName) } },
-                    label = { Text("Product Name") },
+                    value = fallbackText,
+                    onValueChange = { fallbackText = it },
+                    label = { Text("Product Description") },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
                         focusedLabelColor = Color(0xFF06B6D4),
-                        unfocusedLabelColor = Color.Gray
+                        unfocusedLabelColor = Color.Gray,
+                        focusedBorderColor = Color(0xFF06B6D4),
+                        unfocusedBorderColor = Color.Gray
                     ),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 4
                 )
+                Spacer(modifier = Modifier.height(32.dp))
+                Button(
+                    onClick = {
+                        state = "processing"
+                        scope.launch {
+                            viewModel.updateDraft { it.copy(transcribedText = fallbackText) }
+                            viewModel.generateCatalog()
+                            delay(2000)
+                            state = "done"
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4))
+                ) {
+                    Text("Generate Catalog", color = Color.Black, fontWeight = FontWeight.Bold)
+                }
+            } else {
+                // Done state - AI Catalog Generation Review
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text("AI Generated Catalog", color = Color(0xFF06B6D4), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Icon(Icons.Outlined.Edit, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        OutlinedTextField(
+                            value = draft.name,
+                            onValueChange = { val newName = it; viewModel.updateDraft { it.copy(name = newName) } },
+                            label = { Text("Title") },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.White, unfocusedTextColor = Color.White,
+                                focusedBorderColor = Color(0xFF06B6D4), unfocusedBorderColor = Color(0xFF1E293B)
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        OutlinedTextField(
+                            value = draft.description,
+                            onValueChange = { val newDesc = it; viewModel.updateDraft { it.copy(description = newDesc) } },
+                            label = { Text("Description") },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.White, unfocusedTextColor = Color.White,
+                                focusedBorderColor = Color(0xFF06B6D4), unfocusedBorderColor = Color(0xFF1E293B)
+                            ),
+                            modifier = Modifier.fillMaxWidth(),
+                            minLines = 3
+                        )
+                    }
+                }
+                
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(
                     onClick = onNext,
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4))
                 ) {
-                    Text("Continue to Pricing", color = Color.Black, fontWeight = FontWeight.Bold)
+                    Text("Next", color = Color.Black, fontWeight = FontWeight.Bold)
                 }
             }
         }

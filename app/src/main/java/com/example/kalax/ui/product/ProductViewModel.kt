@@ -151,11 +151,13 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
     fun getCommerceScore() {
         // Local deterministic scoring
         _draft.update {
-            var score = 50
+            var score = 30
             if (it.name.isNotEmpty()) score += 10
             if (it.description.isNotEmpty()) score += 10
             if (it.enhancedImageUri != null) score += 20
             if (it.recommendedPrice > 0) score += 10
+            if (it.dimensions.isNotEmpty()) score += 10
+            if (it.keywords.isNotEmpty()) score += 10
             it.copy(score = score)
         }
     }
