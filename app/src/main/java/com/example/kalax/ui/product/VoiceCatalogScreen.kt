@@ -27,9 +27,26 @@ fun VoiceCatalogScreen(
 ) {
     var state by remember { mutableStateOf("idle") } // idle, recording, processing, text_entry, done
     val draft by viewModel.draft.collectAsState()
-    val scope = rememberCoroutineScope()
+    val pipelineState by viewModel.pipelineState.collectAsState()
+    
+    var localState by remember { mutableStateOf("idle") }
     var fallbackText by remember { mutableStateOf("") }
-    var selectedLanguage by remember { mutableStateOf("Tamil") }
+    var selectedLanguage by remember { mutableStateOf("English") }
+    
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(pipelineState) {
+        when (pipelineState) {
+            "ProcessingImage", "TranscribingAudio", "GeneratingCatalog" -> {
+                localState = "processing"
+                state = "processing"
+            }
+            "CatalogGenerated" -> {
+                localState = "done"
+                state = "done"
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -82,13 +99,8 @@ fun VoiceCatalogScreen(
                     onClick = {
                         state = "recording"
                         scope.launch {
-                            delay(2500) // Simulating user talking
-                            state = "processing"
                             viewModel.processVoice(selectedLanguage)
-                            delay(1000) // Simulating whisper process
                             viewModel.generateCatalog()
-                            delay(2000) // Simulating catalog gen
-                            state = "done"
                         }
                     },
                     containerColor = Color(0xFF06B6D4).copy(alpha = 0.2f),
@@ -141,12 +153,8 @@ fun VoiceCatalogScreen(
                 Button(
                     onClick = {
                         state = "processing"
-                        scope.launch {
-                            viewModel.updateDraft { it.copy(transcribedText = fallbackText) }
-                            viewModel.generateCatalog()
-                            delay(2000)
-                            state = "done"
-                        }
+                        viewModel.updateDraft { it.copy(transcribedText = fallbackText) }
+                        viewModel.generateCatalog()
                     },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4))

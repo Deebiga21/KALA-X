@@ -16,6 +16,10 @@ data class CatalogItem(
     val materialCost: Double,
     val labourCost: Double,
     val packagingCost: Double,
+    val otherCost: Double = 0.0,
     val suggestedPrice: Double,
-    val readinessScore: Int
+    val readinessScore: Int,
+    val dimensions: String = "",
+    val transcription: String = "",
+    val status: String = "Draft"
 )

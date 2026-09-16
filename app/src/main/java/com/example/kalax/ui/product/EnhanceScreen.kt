@@ -26,16 +26,14 @@ fun EnhanceScreen(
     onNext: () -> Unit
 ) {
     val draft by viewModel.draft.collectAsState()
-    var isDone by remember { mutableStateOf(false) }
-    var progress by remember { mutableStateOf(0f) }
+    val pipelineState by viewModel.pipelineState.collectAsState()
+    val isDone = pipelineState == "ImageProcessed" || pipelineState == "TranscribingAudio" || pipelineState == "GeneratingCatalog" || pipelineState == "CatalogGenerated"
+    val isProcessing = pipelineState == "ProcessingImage"
 
-    LaunchedEffect(Unit) {
-        // Simulate Edge Processing
-        while (progress < 1f) {
-            delay(50)
-            progress += 0.05f
-        }
-        isDone = true
+    val progress = when {
+        isDone -> 1f
+        isProcessing -> 0.6f
+        else -> 0f
     }
 
     Column(
@@ -127,7 +125,7 @@ fun EnhanceScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedButton(
-                onClick = { /* Implement Try Again locally */ progress = 0f; isDone = false },
+                onClick = { viewModel.enhanceImage() },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 enabled = isDone
             ) {

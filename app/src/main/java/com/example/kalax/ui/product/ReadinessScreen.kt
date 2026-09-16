@@ -27,7 +27,6 @@ fun ReadinessScreen(
     var isCalculating by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        delay(1000)
         viewModel.getCommerceScore()
         isCalculating = false
     }

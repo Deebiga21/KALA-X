@@ -1,21 +1,20 @@
 package com.example.kalax.ui.product
 
 import android.app.Application
+import android.graphics.BitmapFactory
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.kalax.data.api.ApiClient
-import com.example.kalax.data.api.SyncProductRequest
-import com.example.kalax.engine.EdgeAIEngine
-import kotlinx.coroutines.delay
+import com.example.kalax.KalaXApplication
+import com.example.kalax.data.local.entity.CatalogItem
+import com.example.kalax.di.AppContainer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import org.json.JSONObject
 import java.io.File
 import java.util.UUID
 
@@ -40,8 +39,31 @@ data class ProductDraft(
     val transcribedText: String = ""
 )
 
-class ProductViewModel(application: Application) : AndroidViewModel(application) {
-    private val edgeAIEngine = EdgeAIEngine(application)
+fun CatalogItem.toDraft(): ProductDraft = ProductDraft(
+    id = this.id.toString(),
+    imageUri = this.rawPhotoUri,
+    enhancedImageUri = this.processedPhotoUri,
+    name = this.title,
+    category = this.category,
+    material = "",
+    description = this.description,
+    keywords = this.tags,
+    rawCost = this.materialCost.toInt(),
+    labourCost = this.labourCost.toInt(),
+    packagingCost = this.packagingCost.toInt(),
+    otherCost = this.otherCost.toInt(),
+    totalCost = (this.materialCost + this.labourCost + this.packagingCost + this.otherCost).toInt(),
+    recommendedPrice = this.suggestedPrice.toInt(),
+    score = this.readinessScore,
+    dimensions = this.dimensions,
+    status = this.status,
+    transcribedText = this.transcription
+)
+
+class ProductViewModel(
+    application: Application,
+    private val container: AppContainer
+) : AndroidViewModel(application) {
 
     private val _draft = MutableStateFlow(ProductDraft())
     val draft: StateFlow<ProductDraft> = _draft.asStateFlow()
@@ -49,170 +71,161 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
     private val _catalog = MutableStateFlow<List<ProductDraft>>(emptyList())
     val catalog: StateFlow<List<ProductDraft>> = _catalog.asStateFlow()
 
+    private val _pipelineState = MutableStateFlow<String>("Idle")
+    val pipelineState: StateFlow<String> = _pipelineState.asStateFlow()
+
+    private var currentSessionId: Long? = null
+
     init {
-        viewModelScope.launch {
-            edgeAIEngine.initialize()
-        }
         loadCatalog()
     }
 
     fun loadCatalog() {
         viewModelScope.launch {
-            try {
-                val res = ApiClient.api.getProducts()
-                if (res.success) {
-                    val drafts = res.data.map { dto ->
-                        ProductDraft(
-                            id = dto.offline_id ?: dto.id.toString(),
-                            imageUri = dto.original_image?.let { "http://192.168.31.59:8000$it" },
-                            enhancedImageUri = dto.enhanced_image?.let { "http://192.168.31.59:8000$it" },
-                            name = dto.name,
-                            category = dto.category,
-                            material = dto.material,
-                            description = dto.description ?: "",
-                            keywords = dto.keywords ?: "",
-                            rawCost = dto.raw_material_cost.toInt(),
-                            totalCost = dto.total_cost.toInt(),
-                            recommendedPrice = dto.recommended_price?.toInt() ?: 0,
-                            score = dto.commerce_score,
-                            dimensions = dto.dimensions ?: "",
-                            status = dto.status
-                        )
-                    }
-                    _catalog.value = drafts
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            container.database.catalogDao().getAllCatalogItems().collect { list ->
+                _catalog.value = list.map { it.toDraft() }
             }
         }
     }
 
     fun createDraft(name: String, category: String, material: String) {
-        _draft.update {
-            it.copy(id = UUID.randomUUID().toString(), name = name, category = category, material = material)
+        viewModelScope.launch {
+            val id = container.pipelineRepository.createProductSession()
+            currentSessionId = id
+            syncLocalDraft()
+            _draft.update { it.copy(name = name, category = category, material = material) }
         }
+    }
+
+    private suspend fun syncLocalDraft() {
+        currentSessionId?.let { id ->
+            val item = container.pipelineRepository.observeProduct(id).firstOrNull()
+            item?.let { dbItem ->
+                _draft.value = dbItem.toDraft()
+            }
+        }
+    }
+
+    private fun getCurrentCatalogItem(): CatalogItem {
+        val d = _draft.value
+        val id = currentSessionId ?: 0L
+        return CatalogItem(
+            id = id,
+            title = d.name,
+            category = d.category,
+            description = d.description,
+            tags = d.keywords,
+            rawPhotoUri = d.imageUri,
+            processedPhotoUri = d.enhancedImageUri,
+            materialCost = d.rawCost.toDouble(),
+            labourCost = d.labourCost.toDouble(),
+            packagingCost = d.packagingCost.toDouble(),
+            otherCost = d.otherCost.toDouble(),
+            suggestedPrice = d.recommendedPrice.toDouble(),
+            readinessScore = d.score,
+            dimensions = d.dimensions,
+            transcription = d.transcribedText,
+            status = d.status
+        )
     }
 
     fun updateDraft(update: (ProductDraft) -> ProductDraft) {
         _draft.update(update)
+        viewModelScope.launch {
+            if (currentSessionId != null) {
+                container.pipelineRepository.updateProduct(getCurrentCatalogItem())
+            }
+        }
     }
 
     fun uploadImage(file: File) {
-        // In Edge mode, we just store the URI locally until sync
-        _draft.update { it.copy(imageUri = file.absolutePath) }
+        val uriStr = file.absolutePath
+        _draft.update { it.copy(imageUri = uriStr) }
     }
     
     fun enhanceImage() {
         viewModelScope.launch {
-            delay(1500) // Simulate Edge Processing (MediaPipe)
-            _draft.update { it.copy(enhancedImageUri = it.imageUri) } // Stub: use original as enhanced
+            _pipelineState.value = "ProcessingImage"
+            val uriStr = _draft.value.imageUri ?: return@launch
+            val bitmap = BitmapFactory.decodeFile(uriStr)
+            val processed = container.pipelineRepository.processImage(currentSessionId ?: 0, bitmap, uriStr)
+            _draft.update { it.copy(enhancedImageUri = processed) }
+            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
+            _pipelineState.value = "ImageProcessed"
         }
     }
 
     fun processVoice(language: String) {
         viewModelScope.launch {
-            delay(1000) // Simulate local Whisper.cpp
-            _draft.update { it.copy(transcribedText = "This is a handmade bamboo basket.") }
+            _pipelineState.value = "TranscribingAudio"
+            val transcribed = container.pipelineRepository.transcribeAudio(currentSessionId ?: 0, null)
+            _draft.update { it.copy(transcribedText = transcribed) }
+            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
+            _pipelineState.value = "AudioTranscribed"
         }
     }
 
     fun generateCatalog() {
         viewModelScope.launch {
-            val responseJson = edgeAIEngine.generateCatalogOffline(
-                _draft.value.transcribedText,
-                _draft.value.category,
-                _draft.value.rawCost
-            )
-            try {
-                val json = JSONObject(responseJson)
-                _draft.update {
-                    it.copy(
-                        name = json.optString("seo_title", it.name),
-                        description = json.optString("description", it.description),
-                        recommendedPrice = json.optInt("recommended_price_inr", it.recommendedPrice)
-                    )
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            _pipelineState.value = "GeneratingCatalog"
+            container.pipelineRepository.generateCatalog(currentSessionId ?: 0, _draft.value.transcribedText)
+            syncLocalDraft()
+            _pipelineState.value = "CatalogGenerated"
         }
     }
 
     fun calculatePrice() {
-        _draft.update {
-            val total = it.rawCost + it.labourCost + it.packagingCost + it.otherCost
-            it.copy(
-                totalCost = total,
-                recommendedPrice = if (it.recommendedPrice == 0) total + (total * 0.4).toInt() else it.recommendedPrice
+        viewModelScope.launch {
+            val d = _draft.value
+            val price = container.pricingEngine.calculatePrice(
+                d.rawCost.toDouble(), d.labourCost.toDouble(), d.packagingCost.toDouble(), d.otherCost.toDouble()
             )
+            _draft.update { it.copy(recommendedPrice = price.toInt()) }
+            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
         }
     }
     
     fun getCommerceScore() {
-        // Local deterministic scoring
-        _draft.update {
-            var score = 30
-            if (it.name.isNotEmpty()) score += 10
-            if (it.description.isNotEmpty()) score += 10
-            if (it.enhancedImageUri != null) score += 20
-            if (it.recommendedPrice > 0) score += 10
-            if (it.dimensions.isNotEmpty()) score += 10
-            if (it.keywords.isNotEmpty()) score += 10
-            it.copy(score = score)
+        viewModelScope.launch {
+            val score = container.readinessEngine.calculateScore(getCurrentCatalogItem())
+            _draft.update { it.copy(score = score) }
+            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
         }
     }
 
     fun clearDraft() {
+        currentSessionId = null
         _draft.value = ProductDraft()
     }
 
     fun publishDraft() {
-        val current = _draft.value.copy(status = "Published")
-        _draft.value = current
-        syncToCloud(current)
+        _draft.update { it.copy(status = "Published") }
+        viewModelScope.launch {
+            if (currentSessionId != null) {
+                container.pipelineRepository.updateProduct(getCurrentCatalogItem())
+            }
+            clearDraft()
+        }
     }
 
     fun saveDraft() {
-        val current = _draft.value.copy(status = "Draft")
-        _draft.value = current
-        syncToCloud(current)
+        _draft.update { it.copy(status = "Draft") }
+        viewModelScope.launch {
+            if (currentSessionId != null) {
+                container.pipelineRepository.updateProduct(getCurrentCatalogItem())
+            }
+            clearDraft()
+        }
     }
 
-    private fun syncToCloud(draftItem: ProductDraft) {
-        viewModelScope.launch {
-            try {
-                val req = SyncProductRequest(
-                    offline_id = draftItem.id,
-                    name = draftItem.name.ifEmpty { "Untitled" },
-                    category = draftItem.category.ifEmpty { "Uncategorized" },
-                    material = draftItem.material.ifEmpty { "Unknown" },
-                    description = draftItem.description,
-                    seo_title = draftItem.name,
-                    keywords = draftItem.keywords,
-                    raw_material_cost = draftItem.rawCost.toFloat(),
-                    labour_cost = draftItem.labourCost.toFloat(),
-                    packaging_cost = draftItem.packagingCost.toFloat(),
-                    other_cost = draftItem.otherCost.toFloat(),
-                    total_cost = draftItem.totalCost.toFloat(),
-                    recommended_price = draftItem.recommendedPrice.toFloat(),
-                    pricing_confidence = 85,
-                    commerce_score = draftItem.score,
-                    dimensions = draftItem.dimensions,
-                    status = draftItem.status
-                )
-                val res = ApiClient.api.syncProducts(listOf(req))
-                if (res.success) {
-                    loadCatalog()
-                    clearDraft()
+    companion object {
+        fun provideFactory(app: KalaXApplication): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(ProductViewModel::class.java)) {
+                    return ProductViewModel(app, app.container) as T
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                // Offline mode: just add to local catalog StateFlow to reflect in UI
-                _catalog.update { current ->
-                    val filtered = current.filter { it.id != draftItem.id }
-                    filtered + draftItem
-                }
-                clearDraft()
+                throw IllegalArgumentException("Unknown ViewModel class")
             }
         }
     }

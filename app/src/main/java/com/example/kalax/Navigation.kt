@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.entryProvider
@@ -20,7 +21,9 @@ import com.example.kalax.ui.product.*
 @Composable
 fun MainNavigation() {
   val backStack = rememberNavBackStack(Home)
-  val productViewModel: ProductViewModel = viewModel()
+  val context = LocalContext.current
+  val app = context.applicationContext as KalaXApplication
+  val productViewModel: ProductViewModel = viewModel(factory = ProductViewModel.provideFactory(app))
 
   val onNavigate: (String) -> Unit = { route ->
     backStack.clear()

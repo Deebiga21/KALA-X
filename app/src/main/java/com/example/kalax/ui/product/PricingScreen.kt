@@ -30,7 +30,6 @@ fun PricingScreen(
 
     LaunchedEffect(isCalculating) {
         if (isCalculating) {
-            delay(1000)
             viewModel.calculatePrice()
             isCalculating = false
         }
