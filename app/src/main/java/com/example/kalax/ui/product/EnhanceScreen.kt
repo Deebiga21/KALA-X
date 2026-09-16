@@ -73,7 +73,7 @@ fun EnhanceScreen(
                 Box(modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(16.dp)).background(Color.DarkGray)) {
                     if (draft.imageUri != null) {
                         AsyncImage(
-                            model = draft.imageUri,
+                            model = java.io.File(draft.imageUri!!),
                             contentDescription = "Original",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
@@ -85,7 +85,7 @@ fun EnhanceScreen(
                 Box(modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(16.dp)).background(Color(0xFF1E293B))) {
                     if (isDone && draft.enhancedImageUri != null) {
                         AsyncImage(
-                            model = draft.enhancedImageUri,
+                            model = java.io.File(draft.enhancedImageUri!!),
                             contentDescription = "Enhanced",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()

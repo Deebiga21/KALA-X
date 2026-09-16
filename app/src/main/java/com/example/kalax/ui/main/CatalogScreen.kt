@@ -173,7 +173,15 @@ fun ProductCard(product: com.example.kalax.ui.product.ProductDraft) {
     ) {
         Column {
             Box(modifier = Modifier.fillMaxWidth().weight(1.2f).background(Color(0xFF1E293B))) {
-                // Placeholder for image
+                if (product.enhancedImageUri != null || product.imageUri != null) {
+                    val uriToLoad = product.enhancedImageUri ?: product.imageUri
+                    coil.compose.AsyncImage(
+                        model = uriToLoad?.let { java.io.File(it) },
+                        contentDescription = "Product Image",
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
                 Icon(Icons.Default.MoreVert, contentDescription = null, tint = Color.White, modifier = Modifier.align(Alignment.TopEnd).padding(8.dp))
             }
             Column(modifier = Modifier.fillMaxWidth().weight(1f).padding(12.dp)) {

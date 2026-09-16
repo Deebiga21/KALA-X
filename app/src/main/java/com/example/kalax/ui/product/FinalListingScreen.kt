@@ -64,7 +64,7 @@ fun FinalListingScreen(
                     val displayImage = draft.enhancedImageUri ?: draft.imageUri
                     if (displayImage != null) {
                         AsyncImage(
-                            model = displayImage,
+                            model = java.io.File(displayImage),
                             contentDescription = "Product Image",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
