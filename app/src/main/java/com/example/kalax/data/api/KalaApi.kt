@@ -13,13 +13,33 @@ data class RecentProductDto(val id: Int, val name: String, val image: String?)
 data class ProductsResponse(val success: Boolean, val data: List<ProductDto>)
 data class ProductResponse(val success: Boolean, val data: ProductDto)
 data class ProductDto(
-    val id: Int, val name: String, val category: String, val material: String,
+    val id: Int, val offline_id: String?, val name: String, val category: String, val material: String,
     val original_image: String?, val enhanced_image: String?,
     val original_language: String?, val transcription: String?, val translation: String?,
     val description: String?, val seo_title: String?, val keywords: String?,
     val raw_material_cost: Float, val labour_cost: Float, val packaging_cost: Float, val other_cost: Float, val total_cost: Float,
     val market_min: Float?, val market_max: Float?, val recommended_price: Float?, val pricing_confidence: Int?,
     val commerce_score: Int, val dimensions: String?, val weight: String?, val status: String
+)
+
+data class SyncProductRequest(
+    val offline_id: String,
+    val name: String,
+    val category: String,
+    val material: String,
+    val description: String?,
+    val seo_title: String?,
+    val keywords: String?,
+    val raw_material_cost: Float,
+    val labour_cost: Float,
+    val packaging_cost: Float,
+    val other_cost: Float,
+    val total_cost: Float,
+    val recommended_price: Float,
+    val pricing_confidence: Int,
+    val commerce_score: Int,
+    val dimensions: String?,
+    val status: String
 )
 
 data class CreateProductRequest(val name: String, val category: String, val material: String, val location: String? = null, val language: String? = null)
@@ -72,4 +92,7 @@ interface KalaApi {
 
     @GET("api/products/{id}/processing")
     suspend fun getProcessingStatus(@Path("id") id: Int): ProcessingStatusResponse
+
+    @POST("api/sync/products")
+    suspend fun syncProducts(@Body products: List<SyncProductRequest>): BaseResponse
 }
