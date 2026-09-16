@@ -195,10 +195,13 @@ fun HomeScreen(
             Column(modifier = Modifier.padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 
                 // Primary Action
+                // Primary Action
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onCreateProductClick() },
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        viewModel.createDraft("New Product", "Unknown", "Unknown")
+                        onCreateProductClick()
+                    },
                     shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(containerColor = cardBg),
                     border = BorderStroke(1.dp, Brush.linearGradient(listOf(blueGlow.copy(0.5f), cyanGlow.copy(0.5f))))

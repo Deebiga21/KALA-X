@@ -3,6 +3,8 @@ package com.example.kalax.ui.main
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.outlined.Eco
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,7 +55,7 @@ fun InsightsScreen(
                 item {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                         Text("Trending Categories", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                        Text("View all", color = cyanGlow, fontSize = 12.sp)
+                        Text("View all", color = cyanGlow, fontSize = 12.sp, modifier = Modifier.clickable { /* Handle View all */ })
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -66,7 +69,7 @@ fun InsightsScreen(
                 item {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                         Text("Price Intelligence", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                        Text("View all", color = cyanGlow, fontSize = 12.sp)
+                        Text("View all", color = cyanGlow, fontSize = 12.sp, modifier = Modifier.clickable { /* Handle View all */ })
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Card(
@@ -77,7 +80,9 @@ fun InsightsScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(modifier = Modifier.size(48.dp).background(Color(0xFF1E293B), RoundedCornerShape(8.dp)))
+                                Box(modifier = Modifier.size(48.dp).background(Color(0xFF1E293B), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Outlined.Eco, contentDescription = null, tint = Color.Gray)
+                                }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column {
                                     Text("Bamboo Basket", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
@@ -198,7 +203,9 @@ fun TrendCategoryCard(title: String, trend: String) {
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(modifier = Modifier.size(40.dp).background(Color(0xFF1E293B), RoundedCornerShape(8.dp)))
+            Box(modifier = Modifier.size(40.dp).background(Color(0xFF1E293B), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                Icon(Icons.Outlined.Eco, contentDescription = null, tint = Color.Gray)
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(title, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
             Spacer(modifier = Modifier.height(4.dp))

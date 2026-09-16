@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.*
@@ -68,7 +69,9 @@ fun ProfileScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(modifier = Modifier.size(64.dp).clip(CircleShape).background(Color.Gray))
+                                Box(modifier = Modifier.size(64.dp).background(Color(0xFF1E293B), CircleShape), contentAlignment = Alignment.Center) {
+                                    Icon(androidx.compose.material.icons.Icons.Outlined.Person, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(32.dp))
+                                }
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Column {
                                     Text("Lakshmi", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
