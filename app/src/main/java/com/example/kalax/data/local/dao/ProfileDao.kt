@@ -13,5 +13,5 @@ interface ProfileDao {
     fun getProfile(): Flow<ArtisanProfile?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertProfile(profile: ArtisanProfile)
+    suspend fun insertProfile(profile: ArtisanProfile): Long
 }

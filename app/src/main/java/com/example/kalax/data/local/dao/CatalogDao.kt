@@ -17,7 +17,7 @@ interface CatalogDao {
     suspend fun insertCatalogItem(item: CatalogItem): Long
     
     @Insert
-    suspend fun insertCorrection(correction: ArtisanCorrection)
+    suspend fun insertCorrection(correction: ArtisanCorrection): Long
     
     @Query("SELECT * FROM artisan_correction")
     fun getAllCorrections(): Flow<List<ArtisanCorrection>>
