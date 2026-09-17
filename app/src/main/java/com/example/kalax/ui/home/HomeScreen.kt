@@ -53,6 +53,10 @@ fun HomeScreen(
         label = "bg_offset"
     )
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = context.getSharedPreferences("kalax_prefs", android.content.Context.MODE_PRIVATE)
+    val artisanName = prefs.getString("artisan_name", "Artisan") ?: "Artisan"
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -98,30 +102,30 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Logo Icon
                     Box(
                         modifier = Modifier
                             .size(40.dp)
-                            .background(
-                                Brush.linearGradient(listOf(cyanGlow.copy(0.2f), blueGlow.copy(0.2f))),
-                                RoundedCornerShape(10.dp)
-                            ),
+                            .background(Color(0xFF1E293B), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Eco, contentDescription = "Logo", tint = cyanGlow, modifier = Modifier.size(24.dp))
+                        Icon(Icons.Outlined.Person, contentDescription = "Profile", tint = cyanGlow, modifier = Modifier.size(24.dp))
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Row {
-                            Text("KALA", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                            Text("-X", color = cyanGlow, fontSize = 20.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                        }
-                        Text("From Handmade to Market-Ready", color = Color.Gray, fontSize = 10.sp)
+                        Text("Welcome back,", color = Color.Gray, fontSize = 12.sp)
+                        Text(artisanName, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     }
                 }
                 
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(Icons.Outlined.Notifications, contentDescription = "Notifications", tint = Color.LightGray)
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color(0xFF1E293B).copy(alpha = 0.5f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Outlined.Notifications, contentDescription = "Notifications", tint = Color.White, modifier = Modifier.size(20.dp))
+                    // Notification dot
+                    Box(modifier = Modifier.align(Alignment.TopEnd).padding(8.dp).size(6.dp).background(Color.Red, CircleShape))
                 }
             }
 

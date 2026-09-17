@@ -208,6 +208,18 @@ class ProductViewModel(
         }
     }
 
+    fun createProfile(name: String, emailOrPhone: String, craftType: String, language: String) {
+        viewModelScope.launch {
+            val profile = com.example.kalax.data.local.entity.ArtisanProfile(
+                id = 1, // Only 1 profile needed
+                name = name,
+                craftType = craftType,
+                baseHourlyLaborRate = 50.0 // Default
+            )
+            container.database.profileDao().insertProfile(profile)
+        }
+    }
+
     fun saveDraft() {
         _draft.update { it.copy(status = "Draft") }
         viewModelScope.launch {

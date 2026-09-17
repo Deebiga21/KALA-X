@@ -17,10 +17,30 @@ import com.example.kalax.ui.main.ProfileScreen
 import com.example.kalax.ui.home.HomeScreen
 import com.example.kalax.ui.product.CaptureScreen
 import com.example.kalax.ui.product.*
+import com.example.kalax.ui.onboarding.SplashScreen
+import com.example.kalax.ui.onboarding.OnboardingScreen
+import com.example.kalax.ui.onboarding.LoginScreen
+import kotlinx.serialization.Serializable
+
+@Serializable data object Splash
+@Serializable data object Onboarding
+@Serializable data object Login
+@Serializable data object Home
+@Serializable data object Catalog
+@Serializable data object Insights
+@Serializable data object Profile
+@Serializable data object Main
+
+@Serializable data object Capture
+@Serializable data object Enhance
+@Serializable data object VoiceCatalog
+@Serializable data object Pricing
+@Serializable data object Readiness
+@Serializable data object FinalListing
 
 @Composable
 fun MainNavigation() {
-  val backStack = rememberNavBackStack(Home)
+  val backStack = rememberNavBackStack(Splash)
   val context = LocalContext.current
   val app = context.applicationContext as KalaXApplication
   val productViewModel: ProductViewModel = viewModel(factory = ProductViewModel.provideFactory(app))
@@ -40,6 +60,39 @@ fun MainNavigation() {
     onBack = { backStack.removeLastOrNull() },
     entryProvider =
       entryProvider {
+        entry<Splash> {
+          SplashScreen(
+              onNavigateToOnboarding = {
+                  backStack.clear()
+                  backStack.add(Onboarding)
+              },
+              onNavigateToHome = {
+                  backStack.clear()
+                  backStack.add(Home)
+              },
+              onNavigateToLogin = {
+                  backStack.clear()
+                  backStack.add(Login)
+              }
+          )
+        }
+        entry<Onboarding> {
+          OnboardingScreen(
+              onFinish = {
+                  backStack.clear()
+                  backStack.add(Login)
+              }
+          )
+        }
+        entry<Login> {
+          LoginScreen(
+              viewModel = productViewModel,
+              onLoginSuccess = {
+                  backStack.clear()
+                  backStack.add(Home)
+              }
+          )
+        }
         entry<Home> {
           HomeScreen(
               modifier = Modifier.safeDrawingPadding(),

@@ -46,6 +46,11 @@ fun ProfileScreen(
     val cardBg = Color(0xFF0F172A)
     val cyanGlow = Color(0xFF06B6D4)
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = context.getSharedPreferences("kalax_prefs", android.content.Context.MODE_PRIVATE)
+    val artisanName = prefs.getString("artisan_name", "Lakshmi") ?: "Lakshmi"
+    val preferredLanguage = prefs.getString("preferred_language", "Tamil") ?: "Tamil"
+
     Box(modifier = modifier.fillMaxSize().background(Color(0xFF020617))) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
             Spacer(modifier = Modifier.height(24.dp))
@@ -74,7 +79,7 @@ fun ProfileScreen(
                                 }
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Column {
-                                    Text("Lakshmi", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                    Text(artisanName, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                                     Text("Handicraft Artisan", color = Color.LightGray, fontSize = 14.sp)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -85,7 +90,7 @@ fun ProfileScreen(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(Icons.Default.Language, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
                                         Spacer(modifier = Modifier.width(4.dp))
-                                        Text("Tamil", color = Color.Gray, fontSize = 12.sp)
+                                        Text(preferredLanguage, color = Color.Gray, fontSize = 12.sp)
                                     }
                                 }
                             }
@@ -141,7 +146,7 @@ fun ProfileScreen(
                     Text("Settings", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    SettingItem(Icons.Default.Language, "Language", "Tamil")
+                    SettingItem(Icons.Default.Language, "Language", preferredLanguage)
                     SettingToggleItem(Icons.Default.Notifications, "Notifications", true)
                     SettingItem(Icons.Default.Lock, "Privacy", null)
                     SettingItem(Icons.Default.Info, "Help & Support", null)
