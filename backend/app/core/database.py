@@ -9,6 +9,10 @@ load_dotenv()
 # Use SQLite for the prototype
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./database/kala_x.db")
 
+# Ensure the database directory exists
+db_dir = os.path.join(os.path.dirname(__file__), "..", "..", "database")
+os.makedirs(db_dir, exist_ok=True)
+
 # connect_args={"check_same_thread": False} is needed for SQLite in FastAPI
 engine = create_engine(
     DATABASE_URL, connect_args={"check_same_thread": False}
