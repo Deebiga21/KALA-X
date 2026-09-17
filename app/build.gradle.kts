@@ -110,4 +110,7 @@ dependencies {
 
   // MediaPipe
   implementation(libs.mediapipe.tasks.vision)
+
+  // WorkManager
+  implementation(libs.androidx.work.runtime.ktx)
 }

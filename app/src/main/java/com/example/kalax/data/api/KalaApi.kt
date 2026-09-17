@@ -95,4 +95,20 @@ interface KalaApi {
 
     @POST("api/sync/products")
     suspend fun syncProducts(@Body products: List<SyncProductRequest>): BaseResponse
+
+    // Learning Loop endpoints
+    @POST("api/sync/corrections")
+    suspend fun syncCorrections(@Body corrections: List<CorrectionPayload>): BaseResponse
+
+    @GET("api/sync/adapter/{artisanId}")
+    suspend fun getLoraAdapter(@Path("artisanId") artisanId: String): okhttp3.ResponseBody
 }
+
+data class CorrectionPayload(
+    val catalogItemId: Long,
+    val originalText: String,
+    val correctedText: String,
+    val originalPrice: Double,
+    val correctedPrice: Double,
+    val correctionType: String
+)

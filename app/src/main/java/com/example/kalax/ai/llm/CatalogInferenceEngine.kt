@@ -1,6 +1,7 @@
 package com.example.kalax.ai.llm
 
 import com.example.kalax.data.local.entity.ArtisanProfile
+import com.example.kalax.data.local.entity.ArtisanCorrection
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -25,23 +26,46 @@ data class CostBreakdown(
 )
 
 interface CatalogInferenceEngine {
-    suspend fun generateCatalogJson(transcription: String, profile: ArtisanProfile): CatalogGenerationResponse
+    suspend fun generateCatalogJson(
+        transcription: String,
+        profile: ArtisanProfile,
+        recentCorrections: List<ArtisanCorrection> = emptyList()
+    ): CatalogGenerationResponse
 }
 
 class LocalCatalogInferenceEngine : CatalogInferenceEngine {
-    
-    override suspend fun generateCatalogJson(transcription: String, profile: ArtisanProfile): CatalogGenerationResponse {
-        val prompt = synthesizePrompt(transcription, profile)
-        val rawLlmOutput = runLocalLlm(prompt)
+
+    override suspend fun generateCatalogJson(
+        transcription: String,
+        profile: ArtisanProfile,
+        recentCorrections: List<ArtisanCorrection>
+    ): CatalogGenerationResponse {
+        val prompt = synthesizePrompt(transcription, profile, recentCorrections)
+        val loraPath = getLocalLoraAdapterPath()
+        val rawLlmOutput = runLocalLlm(prompt, loraPath)
         return parseJsonSafely(rawLlmOutput)
     }
-    
-    private fun synthesizePrompt(transcription: String, profile: ArtisanProfile): String {
+
+    private fun synthesizePrompt(
+        transcription: String,
+        profile: ArtisanProfile,
+        corrections: List<ArtisanCorrection>
+    ): String {
+        val fewShotRules = if (corrections.isNotEmpty()) {
+            "\n\nBased on the artisan's past preferences:\n" + corrections.joinToString("\n") { c ->
+                when (c.correctionType) {
+                    "PRICE" -> "- For similar items, the artisan prefers pricing around ₹${c.correctedPrice} instead of ₹${c.originalPrice}."
+                    else -> "- The artisan corrected '${c.originalText}' to '${c.correctedText}'. Match this style."
+                }
+            } + "\nApply these preferences to the new listing."
+        } else ""
+
         return """
             You are an expert E-Commerce assistant. Generate a product listing based on this artisan profile and product description.
             Artisan Craft: ${profile.craftType}
             Base Labor Rate: ${profile.baseHourlyLaborRate}
             Description: $transcription
+            $fewShotRules
             
             Return ONLY a JSON object exactly matching this format:
             {
@@ -56,9 +80,16 @@ class LocalCatalogInferenceEngine : CatalogInferenceEngine {
             }
         """.trimIndent()
     }
-    
-    private fun runLocalLlm(prompt: String): String {
-        // Mock ExecuTorch INT4 inference runner execution
+
+    private fun getLocalLoraAdapterPath(): String? {
+        // Check internal storage for a downloaded LoRA adapter file
+        // In production: context.filesDir / "lora" / "adapter_latest.bin"
+        return null
+    }
+
+    private fun runLocalLlm(prompt: String, loraAdapterPath: String?): String {
+        // Mock ExecuTorch INT4 inference runner
+        // In production: load base model + optional LoRA adapter via ExecuTorch/MediaPipe
         return """
             {
               "title": "Handcrafted Terracotta Pot",
@@ -72,10 +103,9 @@ class LocalCatalogInferenceEngine : CatalogInferenceEngine {
             }
         """.trimIndent()
     }
-    
+
     private fun parseJsonSafely(rawOutput: String): CatalogGenerationResponse {
         return try {
-            // Find the JSON block in case the LLM wrapped it in markdown or extraneous text
             val jsonStart = rawOutput.indexOf("{")
             val jsonEnd = rawOutput.lastIndexOf("}") + 1
             if (jsonStart != -1 && jsonEnd > jsonStart) {
@@ -87,7 +117,6 @@ class LocalCatalogInferenceEngine : CatalogInferenceEngine {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            // Fallback response so the pipeline doesn't crash
             CatalogGenerationResponse(title = "Fallback Item", description = "Failed to parse AI output.")
         }
     }

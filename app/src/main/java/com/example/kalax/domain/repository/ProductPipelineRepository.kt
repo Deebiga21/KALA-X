@@ -71,8 +71,11 @@ class ProductPipelineRepository(
                 name = "Default", craftType = "General", 
                 baseHourlyLaborRate = 100.0, standardPackagingCost = 20.0
             )
-            
-        val response = inferenceEngine.generateCatalogJson(transcription, profile)
+
+        // RAG: inject last 5 corrections as few-shot examples
+        val recentCorrections = catalogDao.getRecentCorrections(5)
+
+        val response = inferenceEngine.generateCatalogJson(transcription, profile, recentCorrections)
         val item = catalogDao.getAllCatalogItems().firstOrNull()?.find { it.id == productId }
         item?.let {
             val updated = it.copy(
