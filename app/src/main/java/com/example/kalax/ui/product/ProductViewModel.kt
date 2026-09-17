@@ -211,10 +211,11 @@ class ProductViewModel(
     fun createProfile(name: String, emailOrPhone: String, craftType: String, language: String) {
         viewModelScope.launch {
             val profile = com.example.kalax.data.local.entity.ArtisanProfile(
-                id = 1, // Only 1 profile needed
+                id = "default_artisan",
                 name = name,
                 craftType = craftType,
-                baseHourlyLaborRate = 50.0 // Default
+                baseHourlyLaborRate = 50.0, // Default
+                standardPackagingCost = 20.0 // Default
             )
             container.database.profileDao().insertProfile(profile)
         }
