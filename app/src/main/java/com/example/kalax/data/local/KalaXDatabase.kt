@@ -10,7 +10,7 @@ import com.example.kalax.data.local.entity.ArtisanCorrection
 import com.example.kalax.data.local.entity.ArtisanProfile
 import com.example.kalax.data.local.entity.CatalogItem
 
-@Database(entities = [ArtisanProfile::class, CatalogItem::class, ArtisanCorrection::class], version = 1, exportSchema = false)
+@Database(entities = [ArtisanProfile::class, CatalogItem::class, ArtisanCorrection::class], version = 2, exportSchema = false)
 abstract class KalaXDatabase : RoomDatabase() {
     abstract fun profileDao(): ProfileDao
     abstract fun catalogDao(): CatalogDao
@@ -25,7 +25,9 @@ abstract class KalaXDatabase : RoomDatabase() {
                     context.applicationContext,
                     KalaXDatabase::class.java,
                     "kalax_database"
-                ).build()
+                )
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }
