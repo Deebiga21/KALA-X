@@ -39,7 +39,7 @@ fun EnhanceScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF020617))
+            .background(Color(0xFFF1F5E1))
             .safeDrawingPadding()
     ) {
         Row(
@@ -47,12 +47,12 @@ fun EnhanceScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color(0xFF4A5D44))
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text("Enhancing Your Image", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("From raw to professional", color = Color.Gray, fontSize = 12.sp)
+                Text("Enhancing Your Image", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("From raw to professional", color = Color(0xFF697A63), fontSize = 12.sp)
             }
         }
         
@@ -63,8 +63,8 @@ fun EnhanceScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Before", color = Color.Gray, fontSize = 14.sp)
-                Text("After", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text("Before", color = Color(0xFF697A63), fontSize = 14.sp)
+                Text("After", color = Color(0xFF4A5D44), fontSize = 14.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -82,7 +82,7 @@ fun EnhanceScreen(
                 }
                 
                 // Enhanced Image
-                Box(modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(16.dp)).background(Color(0xFF1E293B))) {
+                Box(modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(16.dp)).background(Color(0xFFC4D1A4))) {
                     if (isDone && draft.enhancedImageUri != null) {
                         AsyncImage(
                             model = java.io.File(draft.enhancedImageUri!!),
@@ -92,7 +92,7 @@ fun EnhanceScreen(
                         )
                     } else if (!isDone) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = Color(0xFF06B6D4))
+                            CircularProgressIndicator(color = Color(0xFF98B891))
                         }
                     }
                 }
@@ -115,11 +115,11 @@ fun EnhanceScreen(
                 enabled = isDone,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF06B6D4),
-                    disabledContainerColor = Color(0xFF1E293B)
+                    containerColor = Color(0xFF98B891),
+                    disabledContainerColor = Color(0xFFC4D1A4)
                 )
             ) {
-                Text("Use Enhanced Image", color = if (isDone) Color.Black else Color.Gray, fontWeight = FontWeight.Bold)
+                Text("Use Enhanced Image", color = if (isDone) Color.Black else Color(0xFF697A63), fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -129,7 +129,7 @@ fun EnhanceScreen(
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 enabled = isDone
             ) {
-                Text("Try Again", color = if (isDone) Color.White else Color.Gray)
+                Text("Try Again", color = if (isDone) Color(0xFF4A5D44) else Color(0xFF697A63))
             }
         }
         
@@ -141,13 +141,13 @@ fun EnhanceScreen(
 fun ProgressItem(text: String, isDone: Boolean) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         if (isDone) {
-            Icon(Icons.Outlined.AutoAwesome, contentDescription = null, tint = Color(0xFF06B6D4), modifier = Modifier.size(20.dp))
+            Icon(Icons.Outlined.AutoAwesome, contentDescription = null, tint = Color(0xFF98B891), modifier = Modifier.size(20.dp))
         } else {
             Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(strokeWidth = 2.dp, color = Color.Gray, modifier = Modifier.size(12.dp))
+                CircularProgressIndicator(strokeWidth = 2.dp, color = Color(0xFF697A63), modifier = Modifier.size(12.dp))
             }
         }
         Spacer(modifier = Modifier.width(12.dp))
-        Text(text, color = if (isDone) Color.White else Color.Gray, fontSize = 14.sp)
+        Text(text, color = if (isDone) Color(0xFF4A5D44) else Color(0xFF697A63), fontSize = 14.sp)
     }
 }

@@ -252,7 +252,7 @@ fun ImageCaptureSection(appState: AppState, onCapture: () -> Unit) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.White), // White background for enhanced look
+                            .background(Color(0xFF4A5D44)), // White background for enhanced look
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -743,7 +743,7 @@ fun PublishedCard(modifier: Modifier = Modifier) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(240.dp)
-                            .background(Color.White),
+                            .background(Color(0xFF4A5D44)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(

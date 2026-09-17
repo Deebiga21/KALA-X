@@ -72,7 +72,7 @@ fun CaptureScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF020617))
+            .background(Color(0xFFF1F5E1))
             .safeDrawingPadding()
     ) {
         Row(
@@ -80,12 +80,12 @@ fun CaptureScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color(0xFF4A5D44))
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text("Create Product", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("Start with a photo", color = Color.Gray, fontSize = 12.sp)
+                Text("Create Product", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("Start with a photo", color = Color(0xFF697A63), fontSize = 12.sp)
             }
         }
         
@@ -95,21 +95,21 @@ fun CaptureScreen(
             modifier = Modifier.fillMaxWidth().padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(Icons.Outlined.CameraAlt, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(64.dp))
+            Icon(Icons.Outlined.CameraAlt, contentDescription = null, tint = Color(0xFF697A63), modifier = Modifier.size(64.dp))
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Capture Product", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+            Text("Capture Product", color = Color(0xFF4A5D44), fontSize = 18.sp, fontWeight = FontWeight.Medium)
             
             Spacer(modifier = Modifier.height(32.dp))
             
             if (isUploading) {
-                CircularProgressIndicator(color = Color(0xFF06B6D4))
+                CircularProgressIndicator(color = Color(0xFF98B891))
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Uploading...", color = Color.White)
+                Text("Uploading...", color = Color(0xFF4A5D44))
             } else {
                 Button(
                     onClick = { cameraLauncher.launch(null) },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF98B891))
                 ) {
                     Icon(Icons.Outlined.CameraAlt, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
@@ -122,9 +122,9 @@ fun CaptureScreen(
                     onClick = { galleryLauncher.launch("image/*") },
                     modifier = Modifier.fillMaxWidth().height(56.dp)
                 ) {
-                    Icon(Icons.Outlined.PhotoLibrary, contentDescription = null, tint = Color(0xFF06B6D4))
+                    Icon(Icons.Outlined.PhotoLibrary, contentDescription = null, tint = Color(0xFF98B891))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Upload from Gallery", color = Color.White)
+                    Text("Upload from Gallery", color = Color(0xFF4A5D44))
                 }
             }
         }

@@ -46,32 +46,32 @@ fun SplashScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF020617)),
+            .background(Color(0xFFF1F5E1)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
             imageVector = Icons.Outlined.Storefront,
             contentDescription = "Logo",
-            tint = Color(0xFF06B6D4),
+            tint = Color(0xFF98B891),
             modifier = Modifier.size(80.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             "KALA-X",
-            color = Color.White,
+            color = Color(0xFF4A5D44),
             fontWeight = FontWeight.Bold,
             fontSize = 32.sp
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             "From Handmade to Market-Ready",
-            color = Color.Gray,
+            color = Color(0xFF697A63),
             fontSize = 14.sp
         )
         Spacer(modifier = Modifier.height(48.dp))
         CircularProgressIndicator(
-            color = Color(0xFF06B6D4),
+            color = Color(0xFF98B891),
             modifier = Modifier.size(24.dp),
             strokeWidth = 2.dp
         )

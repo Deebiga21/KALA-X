@@ -43,23 +43,23 @@ fun ProfileScreen(
     val catalog by viewModel.catalog.collectAsState()
     val published = catalog.count { it.status == "Published" }
 
-    val cardBg = Color(0xFF0F172A)
-    val cyanGlow = Color(0xFF06B6D4)
+    val cardBg = Color(0xFFD5E0B5)
+    val cyanGlow = Color(0xFF98B891)
 
     val context = androidx.compose.ui.platform.LocalContext.current
     val prefs = context.getSharedPreferences("kalax_prefs", android.content.Context.MODE_PRIVATE)
     val artisanName = prefs.getString("artisan_name", "Lakshmi") ?: "Lakshmi"
     val preferredLanguage = prefs.getString("preferred_language", "Tamil") ?: "Tamil"
 
-    Box(modifier = modifier.fillMaxSize().background(Color(0xFF020617))) {
+    Box(modifier = modifier.fillMaxSize().background(Color(0xFFF1F5E1))) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
             Spacer(modifier = Modifier.height(24.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.CheckCircle, contentDescription = null, tint = cyanGlow)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("My Profile", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Text("My Profile", color = Color(0xFF4A5D44), fontSize = 24.sp, fontWeight = FontWeight.Bold)
             }
-            Text("Your artisan business", color = Color.Gray, fontSize = 12.sp)
+            Text("Your artisan business", color = Color(0xFF697A63), fontSize = 12.sp)
             
             Spacer(modifier = Modifier.height(24.dp))
             
@@ -70,27 +70,27 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = cardBg),
                         shape = RoundedCornerShape(16.dp),
-                        border = BorderStroke(1.dp, Color.White.copy(0.05f))
+                        border = BorderStroke(1.dp, Color(0xFF4A5D44).copy(0.05f))
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(modifier = Modifier.size(64.dp).background(Color(0xFF1E293B), CircleShape), contentAlignment = Alignment.Center) {
-                                    Icon(androidx.compose.material.icons.Icons.Outlined.Person, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(32.dp))
+                                Box(modifier = Modifier.size(64.dp).background(Color(0xFFC4D1A4), CircleShape), contentAlignment = Alignment.Center) {
+                                    Icon(androidx.compose.material.icons.Icons.Outlined.Person, contentDescription = null, tint = Color(0xFF697A63), modifier = Modifier.size(32.dp))
                                 }
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Column {
-                                    Text(artisanName, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                                    Text("Handicraft Artisan", color = Color.LightGray, fontSize = 14.sp)
+                                    Text(artisanName, color = Color(0xFF4A5D44), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                    Text("Handicraft Artisan", color = Color(0xFF697A63), fontSize = 14.sp)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
+                                        Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Color(0xFF697A63), modifier = Modifier.size(14.dp))
                                         Spacer(modifier = Modifier.width(4.dp))
-                                        Text("Tamil Nadu, India", color = Color.Gray, fontSize = 12.sp)
+                                        Text("Tamil Nadu, India", color = Color(0xFF697A63), fontSize = 12.sp)
                                     }
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.Language, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
+                                        Icon(Icons.Default.Language, contentDescription = null, tint = Color(0xFF697A63), modifier = Modifier.size(14.dp))
                                         Spacer(modifier = Modifier.width(4.dp))
-                                        Text(preferredLanguage, color = Color.Gray, fontSize = 12.sp)
+                                        Text(preferredLanguage, color = Color(0xFF697A63), fontSize = 12.sp)
                                     }
                                 }
                             }
@@ -98,10 +98,10 @@ fun ProfileScreen(
                             Button(
                                 onClick = { },
                                 modifier = Modifier.align(Alignment.End).height(36.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B)),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC4D1A4)),
                                 shape = RoundedCornerShape(18.dp)
                             ) {
-                                Text("Edit Profile", color = Color.White, fontSize = 12.sp)
+                                Text("Edit Profile", color = Color(0xFF4A5D44), fontSize = 12.sp)
                             }
                         }
                     }
@@ -111,7 +111,7 @@ fun ProfileScreen(
                     // Profile Completion
                     Column {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Profile Completion", color = Color.White, fontSize = 14.sp)
+                            Text("Profile Completion", color = Color(0xFF4A5D44), fontSize = 14.sp)
                             Text("82%", color = cyanGlow, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
@@ -119,14 +119,14 @@ fun ProfileScreen(
                             progress = 0.82f,
                             modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
                             color = cyanGlow,
-                            trackColor = Color(0xFF1E293B)
+                            trackColor = Color(0xFFC4D1A4)
                         )
                     }
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     // Stats
-                    Text("My Business", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text("My Business", color = Color(0xFF4A5D44), fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -143,7 +143,7 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(32.dp))
                     
                     // Settings
-                    Text("Settings", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text("Settings", color = Color(0xFF4A5D44), fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     SettingItem(Icons.Default.Language, "Language", preferredLanguage)
@@ -169,16 +169,16 @@ fun ProfileScreen(
 fun ProfileStatBox(modifier: Modifier, icon: ImageVector, value: String, label: String) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFD5E0B5)),
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, Color.White.copy(0.05f))
+        border = BorderStroke(1.dp, Color(0xFF4A5D44).copy(0.05f))
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+            Icon(icon, contentDescription = null, tint = Color(0xFF697A63), modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text(value, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text(label, color = Color.Gray, fontSize = 10.sp)
+                Text(value, color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(label, color = Color(0xFF697A63), fontSize = 10.sp)
             }
         }
     }
@@ -192,18 +192,18 @@ fun SettingItem(icon: ImageVector, title: String, value: String?) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+            Icon(icon, contentDescription = null, tint = Color(0xFF697A63), modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(16.dp))
-            Text(title, color = Color.White, fontSize = 14.sp)
+            Text(title, color = Color(0xFF4A5D44), fontSize = 14.sp)
         }
         if (value != null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(value, color = Color.Gray, fontSize = 12.sp)
+                Text(value, color = Color(0xFF697A63), fontSize = 12.sp)
                 Spacer(modifier = Modifier.width(8.dp))
-                Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color.Gray)
+                Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF697A63))
             }
         } else {
-            Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color.Gray)
+            Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF697A63))
         }
     }
 }
@@ -217,14 +217,14 @@ fun SettingToggleItem(icon: ImageVector, title: String, checked: Boolean) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+            Icon(icon, contentDescription = null, tint = Color(0xFF697A63), modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(16.dp))
-            Text(title, color = Color.White, fontSize = 14.sp)
+            Text(title, color = Color(0xFF4A5D44), fontSize = 14.sp)
         }
         Switch(
             checked = isChecked, 
             onCheckedChange = { isChecked = it },
-            colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = Color(0xFF06B6D4))
+            colors = SwitchDefaults.colors(checkedThumbColor = Color(0xFF4A5D44), checkedTrackColor = Color(0xFF98B891))
         )
     }
 }

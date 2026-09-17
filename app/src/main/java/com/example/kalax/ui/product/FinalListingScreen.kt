@@ -38,7 +38,7 @@ fun FinalListingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF020617))
+            .background(Color(0xFFF1F5E1))
             .safeDrawingPadding()
     ) {
         Row(
@@ -46,21 +46,21 @@ fun FinalListingScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color(0xFF4A5D44))
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Final Preview", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Text("Final Preview", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 20.sp)
         }
         
         Spacer(modifier = Modifier.height(16.dp))
         
         Card(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF4A5D44)),
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Box(modifier = Modifier.fillMaxWidth().height(250.dp).clip(RoundedCornerShape(8.dp)).background(Color.LightGray)) {
+                Box(modifier = Modifier.fillMaxWidth().height(250.dp).clip(RoundedCornerShape(8.dp)).background(Color(0xFF697A63))) {
                     val displayImage = draft.enhancedImageUri ?: draft.imageUri
                     if (displayImage != null) {
                         AsyncImage(
@@ -74,7 +74,7 @@ fun FinalListingScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(draft.name.ifEmpty { "Product Name" }, color = Color.Black, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                    Text("₹${draft.recommendedPrice}", color = Color(0xFF06B6D4), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text("₹${draft.recommendedPrice}", color = Color(0xFF98B891), fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 }
                 Text("${draft.category} • ${draft.material}", color = Color(0xFF0284C7), fontSize = 12.sp)
                 Spacer(modifier = Modifier.height(16.dp))
@@ -92,12 +92,12 @@ fun FinalListingScreen(
                 },
                 modifier = Modifier.weight(1f).height(56.dp)
             ) {
-                Text("Save Draft", color = Color.White)
+                Text("Save Draft", color = Color(0xFF4A5D44))
             }
             Button(
                 onClick = { isPublishing = true },
                 modifier = Modifier.weight(1f).height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4))
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF98B891))
             ) {
                 if (isPublishing) {
                     CircularProgressIndicator(color = Color.Black, modifier = Modifier.size(24.dp))

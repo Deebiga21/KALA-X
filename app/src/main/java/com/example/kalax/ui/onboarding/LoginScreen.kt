@@ -33,20 +33,20 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF020617))
+            .background(Color(0xFFF1F5E1))
             .safeDrawingPadding()
             .padding(24.dp)
     ) {
         Spacer(modifier = Modifier.height(32.dp))
         Text(
             text = "Welcome to KALA-X",
-            color = Color.White,
+            color = Color(0xFF4A5D44),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = "Set up your artisan profile to continue.",
-            color = Color.Gray,
+            color = Color(0xFF697A63),
             fontSize = 14.sp
         )
         Spacer(modifier = Modifier.height(32.dp))
@@ -57,10 +57,10 @@ fun LoginScreen(
             label = { Text("Full Name") },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color(0xFF06B6D4),
-                unfocusedBorderColor = Color(0xFF1E293B)
+                focusedTextColor = Color(0xFF4A5D44),
+                unfocusedTextColor = Color(0xFF4A5D44),
+                focusedBorderColor = Color(0xFF98B891),
+                unfocusedBorderColor = Color(0xFFC4D1A4)
             ),
             singleLine = true
         )
@@ -71,10 +71,10 @@ fun LoginScreen(
             label = { Text("Phone or Email") },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color(0xFF06B6D4),
-                unfocusedBorderColor = Color(0xFF1E293B)
+                focusedTextColor = Color(0xFF4A5D44),
+                unfocusedTextColor = Color(0xFF4A5D44),
+                focusedBorderColor = Color(0xFF98B891),
+                unfocusedBorderColor = Color(0xFFC4D1A4)
             ),
             singleLine = true
         )
@@ -86,10 +86,10 @@ fun LoginScreen(
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color(0xFF06B6D4),
-                unfocusedBorderColor = Color(0xFF1E293B)
+                focusedTextColor = Color(0xFF4A5D44),
+                unfocusedTextColor = Color(0xFF4A5D44),
+                focusedBorderColor = Color(0xFF98B891),
+                unfocusedBorderColor = Color(0xFFC4D1A4)
             ),
             singleLine = true
         )
@@ -100,16 +100,16 @@ fun LoginScreen(
             label = { Text("Craft Category (e.g. Terracotta)") },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color(0xFF06B6D4),
-                unfocusedBorderColor = Color(0xFF1E293B)
+                focusedTextColor = Color(0xFF4A5D44),
+                unfocusedTextColor = Color(0xFF4A5D44),
+                focusedBorderColor = Color(0xFF98B891),
+                unfocusedBorderColor = Color(0xFFC4D1A4)
             ),
             singleLine = true
         )
         Spacer(modifier = Modifier.height(16.dp))
         
-        Text("Preferred Language", color = Color.Gray, fontSize = 12.sp)
+        Text("Preferred Language", color = Color(0xFF697A63), fontSize = 12.sp)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -120,9 +120,9 @@ fun LoginScreen(
                     onClick = { language = lang },
                     label = { Text(lang) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF06B6D4).copy(alpha = 0.2f),
-                        selectedLabelColor = Color(0xFF06B6D4),
-                        labelColor = Color.Gray
+                        selectedContainerColor = Color(0xFF98B891).copy(alpha = 0.2f),
+                        selectedLabelColor = Color(0xFF98B891),
+                        labelColor = Color(0xFF697A63)
                     )
                 )
             }
@@ -144,7 +144,7 @@ fun LoginScreen(
                 }
             },
             modifier = Modifier.fillMaxWidth().height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF98B891)),
             shape = RoundedCornerShape(24.dp)
         ) {
             Text("Complete Registration", color = Color.Black, fontWeight = FontWeight.Bold)

@@ -25,6 +25,11 @@ import kotlinx.serialization.Serializable
 @Composable
 fun MainNavigation() {
   val backStack = rememberNavBackStack(Splash)
+  
+  if (backStack.isEmpty()) {
+      backStack.add(Splash)
+  }
+  
   val context = LocalContext.current
   val app = context.applicationContext as KalaXApplication
   val productViewModel: ProductViewModel = viewModel(factory = ProductViewModel.provideFactory(app))
@@ -39,9 +44,17 @@ fun MainNavigation() {
     }
   }
 
+  val activity = (context as? android.app.Activity)
+
   NavDisplay(
     backStack = backStack,
-    onBack = { backStack.removeLastOrNull() },
+    onBack = { 
+        if (backStack.size <= 1) {
+            activity?.finish()
+        } else {
+            backStack.removeLastOrNull()
+        }
+    },
     entryProvider =
       entryProvider {
         entry<Splash> {

@@ -38,7 +38,7 @@ fun PricingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF020617))
+            .background(Color(0xFFF1F5E1))
             .safeDrawingPadding()
     ) {
         Row(
@@ -46,12 +46,12 @@ fun PricingScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color(0xFF4A5D44))
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text("Smart Pricing Assistant", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("Find a fair and competitive price.", color = Color.Gray, fontSize = 12.sp)
+                Text("Smart Pricing Assistant", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("Find a fair and competitive price.", color = Color(0xFF697A63), fontSize = 12.sp)
             }
         }
         
@@ -60,7 +60,7 @@ fun PricingScreen(
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
         ) {
-            Text("Cost Breakdown (₹)", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text("Cost Breakdown (₹)", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Spacer(modifier = Modifier.height(16.dp))
             
             CostInput("Raw Material Cost", draft.rawCost.toString()) { 
@@ -76,10 +76,10 @@ fun PricingScreen(
                 viewModel.updateDraft { d -> d.copy(otherCost = it.toIntOrNull() ?: 0) } 
             }
             
-            Divider(color = Color.White.copy(0.1f), modifier = Modifier.padding(vertical = 12.dp))
+            Divider(color = Color(0xFF4A5D44).copy(0.1f), modifier = Modifier.padding(vertical = 12.dp))
             
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Total Cost", color = Color.White, fontWeight = FontWeight.Bold)
+                Text("Total Cost", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold)
                 Text("₹${draft.totalCost}", color = Color(0xFFF59E0B), fontWeight = FontWeight.Bold)
             }
             
@@ -89,43 +89,43 @@ fun PricingScreen(
                 Button(
                     onClick = { isCalculating = true },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6).copy(0.2f)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF98B891).copy(0.2f)),
                     enabled = !isCalculating
                 ) {
                     if (isCalculating) {
-                        CircularProgressIndicator(color = Color(0xFF3B82F6), modifier = Modifier.size(24.dp))
+                        CircularProgressIndicator(color = Color(0xFF98B891), modifier = Modifier.size(24.dp))
                     } else {
-                        Text("Calculate Price", color = Color(0xFF3B82F6), fontWeight = FontWeight.Bold)
+                        Text("Calculate Price", color = Color(0xFF98B891), fontWeight = FontWeight.Bold)
                     }
                 }
             } else {
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFD5E0B5)),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Column {
-                                Text("Market Price Range", color = Color.Gray, fontSize = 12.sp)
-                                Text("₹${(draft.totalCost * 1.3).toInt()} - ₹${(draft.totalCost * 1.6).toInt()}", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                Text("Market Price Range", color = Color(0xFF697A63), fontSize = 12.sp)
+                                Text("₹${(draft.totalCost * 1.3).toInt()} - ₹${(draft.totalCost * 1.6).toInt()}", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             }
                             Column(horizontalAlignment = Alignment.End) {
-                                Text("Confidence", color = Color.Gray, fontSize = 12.sp)
-                                Text("87%", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                Text("Confidence", color = Color(0xFF697A63), fontSize = 12.sp)
+                                Text("87%", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             }
                         }
                         
                         Spacer(modifier = Modifier.height(24.dp))
                         
-                        Text("Recommended Price", color = Color.Gray, fontSize = 12.sp)
-                        Text("₹${draft.recommendedPrice}", color = Color(0xFF06B6D4), fontSize = 36.sp, fontWeight = FontWeight.Bold)
+                        Text("Recommended Price", color = Color(0xFF697A63), fontSize = 12.sp)
+                        Text("₹${draft.recommendedPrice}", color = Color(0xFF98B891), fontSize = 36.sp, fontWeight = FontWeight.Bold)
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Outlined.Info, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
+                            Icon(Icons.Outlined.Info, contentDescription = null, tint = Color(0xFF697A63), modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Based on product cost, category, and market signals.", color = Color.Gray, fontSize = 10.sp)
+                            Text("Based on product cost, category, and market signals.", color = Color(0xFF697A63), fontSize = 10.sp)
                         }
                     }
                 }
@@ -137,12 +137,12 @@ fun PricingScreen(
                         onClick = { isCalculating = true },
                         modifier = Modifier.weight(1f).height(56.dp)
                     ) {
-                        Text("Refresh", color = Color.White)
+                        Text("Refresh", color = Color(0xFF4A5D44))
                     }
                     Button(
                         onClick = onNext,
                         modifier = Modifier.weight(1f).height(56.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4))
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF98B891))
                     ) {
                         Text("Accept ₹${draft.recommendedPrice}", color = Color.Black, fontWeight = FontWeight.Bold)
                     }
@@ -160,17 +160,17 @@ fun CostInput(label: String, value: String, onValueChange: (String) -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, color = Color.Gray, fontSize = 14.sp)
+        Text(label, color = Color(0xFF697A63), fontSize = 14.sp)
         OutlinedTextField(
             value = if (value == "0") "" else value,
             onValueChange = onValueChange,
             modifier = Modifier.width(100.dp).height(48.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color(0xFF06B6D4),
-                unfocusedBorderColor = Color(0xFF1E293B)
+                focusedTextColor = Color(0xFF4A5D44),
+                unfocusedTextColor = Color(0xFF4A5D44),
+                focusedBorderColor = Color(0xFF98B891),
+                unfocusedBorderColor = Color(0xFFC4D1A4)
             ),
             singleLine = true
         )

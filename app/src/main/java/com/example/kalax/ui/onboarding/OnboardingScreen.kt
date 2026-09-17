@@ -66,7 +66,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF020617))
+            .background(Color(0xFFF1F5E1))
             .safeDrawingPadding()
     ) {
         Row(
@@ -74,7 +74,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             horizontalArrangement = Arrangement.End
         ) {
             TextButton(onClick = { finishOnboarding() }) {
-                Text("Skip", color = Color.Gray)
+                Text("Skip", color = Color(0xFF697A63))
             }
         }
         
@@ -93,20 +93,20 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                 Box(
                     modifier = Modifier
                         .size(120.dp)
-                        .background(Color(0xFF1E293B), CircleShape),
+                        .background(Color(0xFFC4D1A4), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = page.icon,
                         contentDescription = null,
-                        tint = Color(0xFF06B6D4),
+                        tint = Color(0xFF98B891),
                         modifier = Modifier.size(60.dp)
                     )
                 }
                 Spacer(modifier = Modifier.height(48.dp))
                 Text(
                     text = page.title,
-                    color = Color.White,
+                    color = Color(0xFF4A5D44),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -114,7 +114,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = page.description,
-                    color = Color.Gray,
+                    color = Color(0xFF697A63),
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center
                 )
@@ -131,7 +131,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             // Page Indicators
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 repeat(pages.size) { index ->
-                    val color = if (pagerState.currentPage == index) Color(0xFF06B6D4) else Color(0xFF1E293B)
+                    val color = if (pagerState.currentPage == index) Color(0xFF98B891) else Color(0xFFC4D1A4)
                     Box(
                         modifier = Modifier
                             .size(10.dp)
@@ -150,7 +150,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                         }
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF98B891)),
                 shape = RoundedCornerShape(24.dp)
             ) {
                 Text(

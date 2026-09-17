@@ -51,7 +51,7 @@ fun VoiceCatalogScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF020617))
+            .background(Color(0xFFF1F5E1))
             .safeDrawingPadding()
     ) {
         Row(
@@ -59,12 +59,12 @@ fun VoiceCatalogScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color(0xFF4A5D44))
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text("Describe your product", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("Speak naturally in your language.", color = Color.Gray, fontSize = 12.sp)
+                Text("Describe your product", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("Speak naturally in your language.", color = Color(0xFF697A63), fontSize = 12.sp)
             }
         }
         
@@ -79,10 +79,10 @@ fun VoiceCatalogScreen(
                 FilterChip(
                     selected = selectedLanguage == lang,
                     onClick = { selectedLanguage = lang },
-                    label = { Text(lang, color = if (selectedLanguage == lang) Color.White else Color.Gray) },
+                    label = { Text(lang, color = if (selectedLanguage == lang) Color(0xFF4A5D44) else Color(0xFF697A63)) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF06B6D4).copy(alpha = 0.2f),
-                        selectedLabelColor = Color(0xFF06B6D4)
+                        selectedContainerColor = Color(0xFF98B891).copy(alpha = 0.2f),
+                        selectedLabelColor = Color(0xFF98B891)
                     )
                 )
             }
@@ -103,19 +103,19 @@ fun VoiceCatalogScreen(
                             viewModel.generateCatalog()
                         }
                     },
-                    containerColor = Color(0xFF06B6D4).copy(alpha = 0.2f),
-                    contentColor = Color(0xFF06B6D4),
+                    containerColor = Color(0xFF98B891).copy(alpha = 0.2f),
+                    contentColor = Color(0xFF98B891),
                     modifier = Modifier.size(100.dp),
                     shape = RoundedCornerShape(50.dp)
                 ) {
                     Icon(Icons.Outlined.Mic, contentDescription = null, modifier = Modifier.size(48.dp))
                 }
                 Spacer(modifier = Modifier.height(32.dp))
-                Text("Tap to start recording", color = Color.Gray, fontSize = 14.sp)
+                Text("Tap to start recording", color = Color(0xFF697A63), fontSize = 14.sp)
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 TextButton(onClick = { state = "text_entry" }) {
-                    Text("Or type manually", color = Color(0xFF06B6D4))
+                    Text("Or type manually", color = Color(0xFF98B891))
                 }
             } else if (state == "recording") {
                 FloatingActionButton(
@@ -130,21 +130,21 @@ fun VoiceCatalogScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 Text("Listening...", color = Color.Red)
             } else if (state == "processing") {
-                CircularProgressIndicator(color = Color(0xFF06B6D4))
+                CircularProgressIndicator(color = Color(0xFF98B891))
                 Spacer(modifier = Modifier.height(24.dp))
-                Text("AI is generating your catalog...", color = Color.Gray)
+                Text("AI is generating your catalog...", color = Color(0xFF697A63))
             } else if (state == "text_entry") {
                 OutlinedTextField(
                     value = fallbackText,
                     onValueChange = { fallbackText = it },
                     label = { Text("Product Description") },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedLabelColor = Color(0xFF06B6D4),
-                        unfocusedLabelColor = Color.Gray,
-                        focusedBorderColor = Color(0xFF06B6D4),
-                        unfocusedBorderColor = Color.Gray
+                        focusedTextColor = Color(0xFF4A5D44),
+                        unfocusedTextColor = Color(0xFF4A5D44),
+                        focusedLabelColor = Color(0xFF98B891),
+                        unfocusedLabelColor = Color(0xFF697A63),
+                        focusedBorderColor = Color(0xFF98B891),
+                        unfocusedBorderColor = Color(0xFF697A63)
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 4
@@ -157,21 +157,21 @@ fun VoiceCatalogScreen(
                         viewModel.generateCatalog()
                     },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF98B891))
                 ) {
                     Text("Generate Catalog", color = Color.Black, fontWeight = FontWeight.Bold)
                 }
             } else {
                 // Done state - AI Catalog Generation Review
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFD5E0B5)),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text("AI Generated Catalog", color = Color(0xFF06B6D4), fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                            Icon(Icons.Outlined.Edit, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                            Text("AI Generated Catalog", color = Color(0xFF98B891), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Icon(Icons.Outlined.Edit, contentDescription = null, tint = Color(0xFF697A63), modifier = Modifier.size(16.dp))
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         
@@ -180,8 +180,8 @@ fun VoiceCatalogScreen(
                             onValueChange = { val newName = it; viewModel.updateDraft { it.copy(name = newName) } },
                             label = { Text("Title") },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.White, unfocusedTextColor = Color.White,
-                                focusedBorderColor = Color(0xFF06B6D4), unfocusedBorderColor = Color(0xFF1E293B)
+                                focusedTextColor = Color(0xFF4A5D44), unfocusedTextColor = Color(0xFF4A5D44),
+                                focusedBorderColor = Color(0xFF98B891), unfocusedBorderColor = Color(0xFFC4D1A4)
                             ),
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -191,8 +191,8 @@ fun VoiceCatalogScreen(
                             onValueChange = { val newDesc = it; viewModel.updateDraft { it.copy(description = newDesc) } },
                             label = { Text("Description") },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.White, unfocusedTextColor = Color.White,
-                                focusedBorderColor = Color(0xFF06B6D4), unfocusedBorderColor = Color(0xFF1E293B)
+                                focusedTextColor = Color(0xFF4A5D44), unfocusedTextColor = Color(0xFF4A5D44),
+                                focusedBorderColor = Color(0xFF98B891), unfocusedBorderColor = Color(0xFFC4D1A4)
                             ),
                             modifier = Modifier.fillMaxWidth(),
                             minLines = 3
@@ -204,7 +204,7 @@ fun VoiceCatalogScreen(
                 Button(
                     onClick = onNext,
                     modifier = Modifier.fillMaxWidth().height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF98B891))
                 ) {
                     Text("Next", color = Color.Black, fontWeight = FontWeight.Bold)
                 }
