@@ -3,6 +3,10 @@ package com.example.kalax
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
+@Serializable data object Splash : NavKey
+@Serializable data object Onboarding : NavKey
+@Serializable data object Login : NavKey
+
 @Serializable data object Home : NavKey
 @Serializable data object Catalog : NavKey
 @Serializable data object Insights : NavKey

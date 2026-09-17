@@ -22,22 +22,6 @@ import com.example.kalax.ui.onboarding.OnboardingScreen
 import com.example.kalax.ui.onboarding.LoginScreen
 import kotlinx.serialization.Serializable
 
-@Serializable data object Splash
-@Serializable data object Onboarding
-@Serializable data object Login
-@Serializable data object Home
-@Serializable data object Catalog
-@Serializable data object Insights
-@Serializable data object Profile
-@Serializable data object Main
-
-@Serializable data object Capture
-@Serializable data object Enhance
-@Serializable data object VoiceCatalog
-@Serializable data object Pricing
-@Serializable data object Readiness
-@Serializable data object FinalListing
-
 @Composable
 fun MainNavigation() {
   val backStack = rememberNavBackStack(Splash)
