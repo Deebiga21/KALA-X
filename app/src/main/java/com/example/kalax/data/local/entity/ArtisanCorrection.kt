@@ -12,5 +12,6 @@ data class ArtisanCorrection(
     val correctedText: String,
     val originalPrice: Double,
     val correctedPrice: Double,
-    val correctionType: String // e.g., "TEXT", "PRICE"
+    val correctionType: String, // e.g., "TEXT", "PRICE"
+    val isSynced: Boolean = false
 )

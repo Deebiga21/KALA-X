@@ -5,7 +5,7 @@ import os
 
 from app.core.database import engine, Base
 from app.models import __init__ # to register all models
-from app.routes import home, products, processing, insights, profile, notifications, sync
+from app.routes import home, products, processing, insights, profile, notifications, sync, lora_training
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -35,6 +35,7 @@ app.include_router(processing.router, prefix="/api/products", tags=["Processing"
 app.include_router(insights.router, prefix="/api/insights", tags=["Insights"])
 app.include_router(profile.router, prefix="/api/profile", tags=["Profile"])
 app.include_router(notifications.router, prefix="/api/notifications", tags=["Notifications"])
+app.include_router(lora_training.router, prefix="/api/lora-training", tags=["LoRA Training"])
 
 @app.get("/")
 def root():

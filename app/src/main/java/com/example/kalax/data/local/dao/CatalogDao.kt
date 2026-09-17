@@ -21,4 +21,13 @@ interface CatalogDao {
     
     @Query("SELECT * FROM artisan_correction")
     fun getAllCorrections(): Flow<List<ArtisanCorrection>>
+
+    @Query("SELECT * FROM artisan_correction ORDER BY id DESC LIMIT :limit")
+    suspend fun getRecentCorrections(limit: Int): List<ArtisanCorrection>
+
+    @Query("SELECT * FROM artisan_correction WHERE isSynced = 0")
+    suspend fun getUnsyncedCorrections(): List<ArtisanCorrection>
+
+    @Query("UPDATE artisan_correction SET isSynced = 1 WHERE id IN (:ids)")
+    suspend fun markCorrectionsAsSynced(ids: List<Long>): Int
 }
