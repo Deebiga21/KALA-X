@@ -36,6 +36,7 @@ fun MainNavigation() {
         val id = route.removePrefix("ProductDetail/")
         backStack.add(ProductDetail(id))
     } else if (route == "CreateProduct") {
+        productViewModel.startNewSession()
         backStack.add(Capture)
     } else {
         backStack.clear()
@@ -106,7 +107,10 @@ fun MainNavigation() {
               modifier = Modifier.safeDrawingPadding(),
               currentRoute = "Home",
               onNavigate = onNavigate,
-              onCreateProductClick = { backStack.add(Capture) },
+              onCreateProductClick = { 
+                  productViewModel.startNewSession()
+                  backStack.add(Capture) 
+              },
               viewModel = productViewModel
           )
         }

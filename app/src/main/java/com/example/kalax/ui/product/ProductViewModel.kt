@@ -115,6 +115,14 @@ class ProductViewModel(
         }
     }
 
+    fun startNewSession() {
+        viewModelScope.launch {
+            _pipelineState.value = PipelineState.Idle
+            _draft.value = ProductDraft()
+            currentSessionId = container.pipelineRepository.createProductSession()
+        }
+    }
+
     fun createDraft(name: String, category: String, material: String) {
         viewModelScope.launch {
             val id = container.pipelineRepository.createProductSession()
