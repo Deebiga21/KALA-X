@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.kalax.KalaXApplication
 import com.example.kalax.data.local.entity.CatalogItem
 import com.example.kalax.di.AppContainer
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -184,11 +183,8 @@ class ProductViewModel(
             val uriStr = _draft.value.imageUri ?: return@launch
             val bitmap = BitmapFactory.decodeFile(uriStr)
             
-            delay(2000) // Simulated background removal delay
-            
             val processed = container.pipelineRepository.processImage(currentSessionId ?: 0, bitmap, uriStr)
             _draft.update { it.copy(enhancedImageUri = processed) }
-            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
             _pipelineState.value = PipelineState.Idle
         }
     }
@@ -196,13 +192,10 @@ class ProductViewModel(
     fun processVoiceAndGenerate(language: String) {
         viewModelScope.launch {
             _pipelineState.value = PipelineState.Transcribing
-            delay(1500) // Simulate speech-to-text delay
             val transcribed = container.pipelineRepository.transcribeAudio(currentSessionId ?: 0, null)
             _draft.update { it.copy(transcribedText = transcribed) }
-            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
             
             _pipelineState.value = PipelineState.Generating
-            delay(1500) // Simulate generation delay
             container.pipelineRepository.generateCatalog(currentSessionId ?: 0, _draft.value.transcribedText)
             syncLocalDraft()
             
@@ -213,10 +206,8 @@ class ProductViewModel(
     fun processVoice(language: String) {
         viewModelScope.launch {
             _pipelineState.value = PipelineState.Transcribing
-            delay(1500) // Simulate speech-to-text delay
             val transcribed = container.pipelineRepository.transcribeAudio(currentSessionId ?: 0, null)
             _draft.update { it.copy(transcribedText = transcribed) }
-            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
             _pipelineState.value = PipelineState.Idle
         }
     }
@@ -224,7 +215,6 @@ class ProductViewModel(
     fun generateCatalog() {
         viewModelScope.launch {
             _pipelineState.value = PipelineState.Generating
-            delay(1500) // Simulate AI generation delay
             container.pipelineRepository.generateCatalog(currentSessionId ?: 0, _draft.value.transcribedText)
             syncLocalDraft()
             _pipelineState.value = PipelineState.Idle
@@ -234,12 +224,8 @@ class ProductViewModel(
     fun calculatePrice() {
         viewModelScope.launch {
             _pipelineState.value = PipelineState.Pricing
-            val d = _draft.value
-            val price = container.pricingEngine.calculatePrice(
-                d.rawCost.toDouble(), d.labourCost.toDouble(), d.packagingCost.toDouble(), d.otherCost.toDouble()
-            )
+            val price = container.pipelineRepository.calculatePricing(currentSessionId ?: 0)
             _draft.update { it.copy(recommendedPrice = price.toInt()) }
-            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
             _pipelineState.value = PipelineState.Idle
         }
     }
@@ -247,9 +233,8 @@ class ProductViewModel(
     fun getCommerceScore() {
         viewModelScope.launch {
             _pipelineState.value = PipelineState.Reviewing
-            val score = container.readinessEngine.calculateScore(getCurrentCatalogItem())
+            val score = container.pipelineRepository.checkReadiness(currentSessionId ?: 0)
             _draft.update { it.copy(score = score) }
-            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
             _pipelineState.value = PipelineState.Idle
         }
     }
@@ -264,7 +249,8 @@ class ProductViewModel(
         _draft.update { it.copy(status = "Published") }
         viewModelScope.launch {
             if (currentSessionId != null) {
-                container.pipelineRepository.updateProduct(getCurrentCatalogItem())
+                container.pipelineRepository.publishProduct(currentSessionId!!)
+                // The updateProduct is optional here, as publishProduct should sync the state
             }
             clearDraft()
         }

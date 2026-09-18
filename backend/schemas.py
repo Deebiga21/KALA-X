@@ -1,37 +1,34 @@
 from pydantic import BaseModel
-from typing import List, Optional
-from datetime import datetime
+from typing import Optional, List
 
 class ProductBase(BaseModel):
     name: str
-    category: str
-    material: str
-    image: str
-    enhancedImage: Optional[str] = None
-    description: str
-    originalLanguage: Optional[str] = None
-    transcription: Optional[str] = None
-    translation: Optional[str] = None
-    keywords: List[str] = []
-    rawMaterialCost: Optional[float] = None
-    labourCost: Optional[float] = None
-    packagingCost: Optional[float] = None
-    otherCost: Optional[float] = None
-    totalCost: Optional[float] = None
-    marketMin: Optional[float] = None
-    marketMax: Optional[float] = None
-    recommendedPrice: Optional[float] = None
-    pricingConfidence: Optional[int] = None
-    commerceScore: Optional[int] = None
-    dimensions: Optional[str] = None
-    status: str = "Draft"
+    description: Optional[str] = None
 
 class ProductCreate(ProductBase):
-    id: str
+    pass
 
 class ProductResponse(ProductBase):
-    id: str
-    createdAt: datetime
+    id: int
+    image_url: Optional[str] = None
+    audio_url: Optional[str] = None
+    material: Optional[str] = None
+    raw_material_cost: Optional[float] = None
+    labor_cost: Optional[float] = None
+    packaging_cost: Optional[float] = None
+    margin_percentage: Optional[float] = None
+    final_price: Optional[float] = None
+    catalog_title: Optional[str] = None
+    catalog_description: Optional[str] = None
+    catalog_seo_tags: Optional[str] = None
+    readiness_score: Optional[float] = None
+    is_published: bool
 
     class Config:
         from_attributes = True
+        
+class PricingInput(BaseModel):
+    raw_material_cost: float
+    labor_cost: float
+    packaging_cost: float
+    margin_percentage: float

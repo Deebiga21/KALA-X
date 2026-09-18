@@ -1,31 +1,26 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime
+from sqlalchemy import Column, Integer, String, Float, Text, Boolean
 from database import Base
-import datetime
 
 class Product(Base):
     __tablename__ = "products"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    category = Column(String)
-    material = Column(String)
-    image = Column(String)
-    enhancedImage = Column(String, nullable=True)
-    description = Column(String)
-    originalLanguage = Column(String, nullable=True)
-    transcription = Column(String, nullable=True)
-    translation = Column(String, nullable=True)
-    keywords = Column(String) # Stored as comma-separated string
-    rawMaterialCost = Column(Float, nullable=True)
-    labourCost = Column(Float, nullable=True)
-    packagingCost = Column(Float, nullable=True)
-    otherCost = Column(Float, nullable=True)
-    totalCost = Column(Float, nullable=True)
-    marketMin = Column(Float, nullable=True)
-    marketMax = Column(Float, nullable=True)
-    recommendedPrice = Column(Float, nullable=True)
-    pricingConfidence = Column(Integer, nullable=True)
-    commerceScore = Column(Integer, nullable=True)
-    dimensions = Column(String, nullable=True)
-    status = Column(String, default="Draft")
-    createdAt = Column(DateTime, default=datetime.datetime.utcnow)
+    description = Column(Text, nullable=True)
+    image_url = Column(String, nullable=True)
+    audio_url = Column(String, nullable=True)
+    
+    material = Column(String, nullable=True)
+    
+    raw_material_cost = Column(Float, nullable=True)
+    labor_cost = Column(Float, nullable=True)
+    packaging_cost = Column(Float, nullable=True)
+    margin_percentage = Column(Float, nullable=True)
+    final_price = Column(Float, nullable=True)
+    
+    catalog_title = Column(String, nullable=True)
+    catalog_description = Column(Text, nullable=True)
+    catalog_seo_tags = Column(String, nullable=True)
+    
+    readiness_score = Column(Float, default=0.0)
+    is_published = Column(Boolean, default=False)
