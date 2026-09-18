@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
@@ -87,6 +89,13 @@ class ProductViewModel(
     private val _profile = MutableStateFlow<com.example.kalax.data.local.entity.ArtisanProfile?>(null)
     val profile: StateFlow<com.example.kalax.data.local.entity.ArtisanProfile?> = _profile.asStateFlow()
 
+    private val _marketInsights = MutableStateFlow<com.example.kalax.data.remote.InsightsResponse?>(null)
+    val marketInsights: StateFlow<com.example.kalax.data.remote.InsightsResponse?> = _marketInsights.asStateFlow()
+
+    val catalogList: StateFlow<List<CatalogItem>> =
+        container.database.catalogDao().getAllCatalogItems()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     private var currentSessionId: Long? = null
 
     init {
@@ -98,6 +107,18 @@ class ProductViewModel(
         viewModelScope.launch {
             container.database.profileDao().getProfile().collect { p ->
                 _profile.value = p
+            }
+        }
+    }
+
+
+    fun fetchInsights() {
+        viewModelScope.launch {
+            try {
+                val insights = container.pipelineRepository.getInsights()
+                _marketInsights.value = insights
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

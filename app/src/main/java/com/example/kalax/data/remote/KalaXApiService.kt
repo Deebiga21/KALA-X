@@ -90,4 +90,20 @@ interface KalaXApiService {
     
     @POST("/api/products")
     suspend fun updateProduct(@Body item: CatalogItem): ProductResponse // using create endpoint for update as well for sync, or just a PUT
+
+    @GET("/api/insights")
+    suspend fun getInsights(): InsightsResponse
 }
+
+data class InsightsResponse(
+    val recommended_price: Int,
+    val your_cost: Int,
+    val potential_margin: Int,
+    val confidence_score: Int,
+    val opportunity_level: String,
+    val top_category: String,
+    val demand_level: String,
+    val trend_percentage: Int,
+    val buyer_interest_percentage: Int,
+    val opportunity_description: String
+)

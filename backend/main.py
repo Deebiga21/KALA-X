@@ -176,3 +176,58 @@ def publish_product(id: int, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(product)
     return product
+
+@app.get("/api/insights")
+def get_insights(db: Session = Depends(get_db)):
+    products = db.query(models.Product).all()
+    
+    if not products:
+        return {
+            "recommended_price": 849,
+            "your_cost": 600,
+            "potential_margin": 249,
+            "confidence_score": 87,
+            "opportunity_level": "Strong Opportunity",
+            "top_category": "Bamboo Home Decor",
+            "demand_level": "HIGH",
+            "trend_percentage": 18,
+            "buyer_interest_percentage": 18,
+            "opportunity_description": "Demand is high. Similar products are selling between 799 and 899."
+        }
+        
+    latest = products[-1]
+    
+    import json
+    price_val = 849
+    cost_val = 600
+    if latest.pricing_data:
+        try:
+            pricing = json.loads(latest.pricing_data)
+            price_val = int(pricing.get('recommended_price', 849))
+            cost_val = int(pricing.get('total_cost', 600))
+        except:
+            pass
+            
+    margin = price_val - cost_val
+    if margin < 0: margin = 0
+    
+    category = "Artisan Craft"
+    if latest.catalog_data:
+        try:
+            catalog = json.loads(latest.catalog_data)
+            category = catalog.get('category', 'Artisan Craft')
+        except:
+            pass
+
+    return {
+        "recommended_price": price_val,
+        "your_cost": cost_val,
+        "potential_margin": margin,
+        "confidence_score": 92,
+        "opportunity_level": "Strong Opportunity",
+        "top_category": category,
+        "demand_level": "HIGH",
+        "trend_percentage": 24,
+        "buyer_interest_percentage": 21,
+        "opportunity_description": f"Demand for {category} is high. Competitors price around {int(price_val*0.9)} - {int(price_val*1.1)}."
+    }

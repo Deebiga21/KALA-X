@@ -166,4 +166,6 @@ class ProductPipelineRepository(
             catalogDao.insertCatalogItem(item)
         }
     }
+    
+    suspend fun getInsights() = apiService.getInsights()
 }
