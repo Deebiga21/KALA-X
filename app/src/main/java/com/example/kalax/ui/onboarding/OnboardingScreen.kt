@@ -13,6 +13,7 @@ import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -66,7 +67,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF020617))
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
     ) {
         Row(
@@ -74,7 +75,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             horizontalArrangement = Arrangement.End
         ) {
             TextButton(onClick = { finishOnboarding() }) {
-                Text("Skip", color = Color.Gray)
+                Text("Skip", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         
@@ -93,20 +94,20 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                 Box(
                     modifier = Modifier
                         .size(120.dp)
-                        .background(Color(0xFF1E293B), CircleShape),
+                        .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = page.icon,
                         contentDescription = null,
-                        tint = Color(0xFF06B6D4),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(60.dp)
                     )
                 }
                 Spacer(modifier = Modifier.height(48.dp))
                 Text(
                     text = page.title,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -114,7 +115,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = page.description,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center
                 )
@@ -131,7 +132,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             // Page Indicators
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 repeat(pages.size) { index ->
-                    val color = if (pagerState.currentPage == index) Color(0xFF06B6D4) else Color(0xFF1E293B)
+                    val color = if (pagerState.currentPage == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
                     Box(
                         modifier = Modifier
                             .size(10.dp)
@@ -150,12 +151,12 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                         }
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(24.dp)
             ) {
                 Text(
                     text = if (pagerState.currentPage == pages.size - 1) "Get Started" else "Next",
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontWeight = FontWeight.Bold
                 )
             }

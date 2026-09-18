@@ -2,10 +2,15 @@ package com.example.kalax.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Sage Green Palette
+val KalaBg = Color(0xFFE8F0DC)           // Lightest - screen backgrounds
+val KalaCard = Color(0xFFC8D8AC)         // Light-mid - cards, surfaces
+val KalaAccent = Color(0xFFA8C49A)       // Mid - buttons, active states
+val KalaDeepAccent = Color(0xFF8AAA78)   // Deepest - FABs, strong CTAs
+val KalaTextPrimary = Color(0xFF2D3A28)  // Dark green - headlines, body
+val KalaTextSecondary = Color(0xFF5A6E52) // Muted green - subtitles, hints
+val KalaSurfaceVariant = Color(0xFFD4E4C4) // Between bg and card - subtle containers
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Status colors (unchanged)
+val KalaStatusGreen = Color(0xFF4CAF50)
+val KalaStatusAmber = Color(0xFFF59E0B)

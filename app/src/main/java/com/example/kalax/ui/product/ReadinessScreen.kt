@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,7 +35,7 @@ fun ReadinessScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF020617))
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
     ) {
         Row(
@@ -42,12 +43,12 @@ fun ReadinessScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onBackground)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text("Commerce Readiness", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("Optimize for success", color = Color.Gray, fontSize = 12.sp)
+                Text("Commerce Readiness", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("Optimize for success", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             }
         }
         
@@ -59,22 +60,22 @@ fun ReadinessScreen(
         ) {
             if (isCalculating) {
                 Spacer(modifier = Modifier.height(64.dp))
-                CircularProgressIndicator(color = Color(0xFF06B6D4), modifier = Modifier.size(64.dp))
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(64.dp))
                 Spacer(modifier = Modifier.height(24.dp))
-                Text("Analyzing your product listing...", color = Color.Gray)
+                Text("Analyzing your product listing...", color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 // Score Ring
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.size(160.dp)) {
                     CircularProgressIndicator(
                         progress = { draft.score / 100f },
                         modifier = Modifier.fillMaxSize(),
-                        color = Color(0xFF06B6D4),
-                        trackColor = Color(0xFF1E293B),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
                         strokeWidth = 12.dp
                     )
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("${draft.score}", color = Color.White, fontSize = 48.sp, fontWeight = FontWeight.Bold)
-                        Text("out of 100", color = Color.Gray, fontSize = 12.sp)
+                        Text("${draft.score}", color = MaterialTheme.colorScheme.onBackground, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+                        Text("out of 100", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                     }
                 }
                 
@@ -82,7 +83,7 @@ fun ReadinessScreen(
                 
                 // Score Breakdown
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    Text("Score Breakdown", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Score Breakdown", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     BreakdownRow("Product Image", if (draft.enhancedImageUri != null) 95 else 40)
@@ -108,7 +109,7 @@ fun ReadinessScreen(
                                 Text("Product dimensions missing", color = Color(0xFFF59E0B), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("Add dimensions to reach 95+", color = Color.White, fontSize = 12.sp)
+                            Text("Add dimensions to reach 95+", color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp)
                             
                             Spacer(modifier = Modifier.height(12.dp))
                             Button(
@@ -119,7 +120,7 @@ fun ReadinessScreen(
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B)),
                                 modifier = Modifier.height(36.dp)
                             ) {
-                                Text("Add Dimensions", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text("Add Dimensions", color = MaterialTheme.colorScheme.onPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -145,14 +146,14 @@ fun ReadinessScreen(
                     onClick = onNext,
                     modifier = Modifier.weight(1f).height(56.dp)
                 ) {
-                    Text("Skip", color = Color.White)
+                    Text("Skip", color = MaterialTheme.colorScheme.onBackground)
                 }
                 Button(
                     onClick = onNext,
                     modifier = Modifier.weight(1.5f).height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Complete Product", color = Color.Black, fontWeight = FontWeight.Bold)
+                    Text("Complete Product", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -166,13 +167,13 @@ fun BreakdownRow(label: String, score: Int) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, color = Color.Gray, fontSize = 12.sp, modifier = Modifier.weight(1f))
+        Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, modifier = Modifier.weight(1f))
         LinearProgressIndicator(
             progress = { score / 100f },
             modifier = Modifier.weight(1.5f).height(6.dp),
-            color = Color(0xFF06B6D4),
-            trackColor = Color(0xFF1E293B)
+            color = MaterialTheme.colorScheme.primary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
         )
-        Text("$score", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(32.dp).padding(start = 8.dp))
+        Text("$score", color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(32.dp).padding(start = 8.dp))
     }
 }

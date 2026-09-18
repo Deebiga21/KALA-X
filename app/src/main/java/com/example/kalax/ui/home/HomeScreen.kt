@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,11 +36,11 @@ fun HomeScreen(
     val publishedCount = catalog.count { it.status == "Published" }
     val totalCount = catalog.size
     // Colors
-    val navyBg = Color(0xFF020617)
-    val cardBg = Color(0xFF0F172A).copy(alpha = 0.6f)
-    val cyanGlow = Color(0xFF06B6D4)
-    val blueGlow = Color(0xFF3B82F6)
-    val violetGlow = Color(0xFF8B5CF6)
+    val navyBg = MaterialTheme.colorScheme.background
+    val cardBg = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)
+    val cyanGlow = MaterialTheme.colorScheme.primary
+    val blueGlow = MaterialTheme.colorScheme.primary
+    val violetGlow = MaterialTheme.colorScheme.tertiary
     
     // Background gradient animation
     val infiniteTransition = rememberInfiniteTransition(label = "bg_anim")
@@ -105,25 +106,25 @@ fun HomeScreen(
                     Box(
                         modifier = Modifier
                             .size(40.dp)
-                            .background(Color(0xFF1E293B), CircleShape),
+                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(Icons.Outlined.Person, contentDescription = "Profile", tint = cyanGlow, modifier = Modifier.size(24.dp))
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text("Welcome back,", color = Color.Gray, fontSize = 12.sp)
-                        Text(artisanName, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        Text("Welcome back,", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+                        Text(artisanName, color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     }
                 }
                 
                 Box(
                     modifier = Modifier
                         .size(40.dp)
-                        .background(Color(0xFF1E293B).copy(alpha = 0.5f), CircleShape),
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Outlined.Notifications, contentDescription = "Notifications", tint = Color.White, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Outlined.Notifications, contentDescription = "Notifications", tint = MaterialTheme.colorScheme.onBackground, modifier = Modifier.size(20.dp))
                     // Notification dot
                     Box(modifier = Modifier.align(Alignment.TopEnd).padding(8.dp).size(6.dp).background(Color.Red, CircleShape))
                 }
@@ -132,7 +133,7 @@ fun HomeScreen(
             // Hero Section
             Column(modifier = Modifier.padding(horizontal = 24.dp)) {
                 val heroText = buildAnnotatedString {
-                    withStyle(style = SpanStyle(color = Color.White)) {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
                         append("Turn your\n")
                     }
                     withStyle(style = SpanStyle(
@@ -140,7 +141,7 @@ fun HomeScreen(
                     )) {
                         append("craft ")
                     }
-                    withStyle(style = SpanStyle(color = Color.White)) {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
                         append("into\n")
                     }
                     withStyle(style = SpanStyle(
@@ -162,7 +163,7 @@ fun HomeScreen(
                 
                 Text(
                     text = "AI-powered support for marginalized artisans to create, price and sell their handmade products.",
-                    color = Color.LightGray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
                     lineHeight = 20.sp,
                     modifier = Modifier.fillMaxWidth(0.8f)
@@ -176,8 +177,8 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .height(300.dp)
                         .clip(RoundedCornerShape(24.dp))
-                        .background(Color(0xFF0F172A).copy(0.4f))
-                        .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(24.dp))
+                        .background(MaterialTheme.colorScheme.surface.copy(0.4f))
+                        .border(1.dp, MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f), RoundedCornerShape(24.dp))
                 ) {
                     androidx.compose.ui.viewinterop.AndroidView(
                         factory = { context ->
@@ -226,10 +227,10 @@ fun HomeScreen(
                         }
                         Spacer(modifier = Modifier.width(16.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Create Product", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            Text("Capture, describe and let AI do the rest.", color = Color.Gray, fontSize = 12.sp)
+                            Text("Create Product", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Text("Capture, describe and let AI do the rest.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                         }
-                        Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.LightGray)
+                        Icon(Icons.Default.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
 
@@ -238,7 +239,7 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth().clickable { onNavigate("Catalog") },
                     shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(containerColor = cardBg),
-                    border = BorderStroke(1.dp, Color.White.copy(0.05f))
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.05f))
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(20.dp),
@@ -252,10 +253,10 @@ fun HomeScreen(
                         }
                         Spacer(modifier = Modifier.width(16.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("My Catalog", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            Text("Manage your products & listings.", color = Color.Gray, fontSize = 12.sp)
+                            Text("My Catalog", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Text("Manage your products & listings.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                         }
-                        Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.LightGray)
+                        Icon(Icons.Default.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
 
@@ -264,7 +265,7 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth().clickable { onNavigate("Insights") },
                     shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(containerColor = cardBg),
-                    border = BorderStroke(1.dp, Color.White.copy(0.05f))
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.05f))
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(20.dp),
@@ -278,10 +279,10 @@ fun HomeScreen(
                         }
                         Spacer(modifier = Modifier.width(16.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Market Insights", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            Text("Trends, demand & best pricing.", color = Color.Gray, fontSize = 12.sp)
+                            Text("Market Insights", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Text("Trends, demand & best pricing.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                         }
-                        Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.LightGray)
+                        Icon(Icons.Default.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -295,7 +296,7 @@ fun HomeScreen(
                     .padding(horizontal = 24.dp),
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = cardBg),
-                border = BorderStroke(1.dp, Color.White.copy(0.05f))
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.05f))
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -303,9 +304,9 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     StatItem(Icons.Outlined.Inventory2, blueGlow, "${totalCount}", "Products Created")
-                    Box(modifier = Modifier.width(1.dp).height(50.dp).background(Color.White.copy(0.1f)))
+                    Box(modifier = Modifier.width(1.dp).height(50.dp).background(MaterialTheme.colorScheme.onBackground.copy(0.1f)))
                     StatItem(Icons.Outlined.CheckCircle, cyanGlow, "${publishedCount}", "Published")
-                    Box(modifier = Modifier.width(1.dp).height(50.dp).background(Color.White.copy(0.1f)))
+                    Box(modifier = Modifier.width(1.dp).height(50.dp).background(MaterialTheme.colorScheme.onBackground.copy(0.1f)))
                     StatItem(Icons.Outlined.StarOutline, violetGlow, "91/100", "Commerce Score")
                 }
             }
@@ -313,7 +314,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             // Recent Activity
-            Text("Recent Activity", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(horizontal = 24.dp))
+            Text("Recent Activity", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(horizontal = 24.dp))
             Spacer(modifier = Modifier.height(16.dp))
             Card(
                 modifier = Modifier
@@ -324,9 +325,9 @@ fun HomeScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     if (catalog.isNotEmpty()) {
-                        Text("“${catalog.last().name} published”", color = Color.White, fontSize = 14.sp)
+                        Text("“${catalog.last().name} published”", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp)
                     } else {
-                        Text("“No recent activity.”", color = Color.Gray, fontSize = 14.sp)
+                        Text("“No recent activity.”", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                     }
                 }
             }
@@ -339,7 +340,7 @@ fun HomeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text("Supporting Artisans.", color = cyanGlow.copy(0.8f), fontStyle = FontStyle.Italic, fontSize = 12.sp)
-                Text("Building a Better Tomorrow.", color = Color.White, fontWeight = FontWeight.Medium, fontSize = 12.sp)
+                Text("Building a Better Tomorrow.", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Medium, fontSize = 12.sp)
             }
         }
         
@@ -359,14 +360,14 @@ fun BottomNavBar(
     currentRoute: String,
     onNavigate: (String) -> Unit
 ) {
-    val cardBg = Color(0xFF0F172A).copy(alpha = 0.9f)
-    val cyanGlow = Color(0xFF06B6D4)
+    val cardBg = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+    val cyanGlow = MaterialTheme.colorScheme.primary
 
     Box(modifier = modifier) {
         Card(
             shape = RoundedCornerShape(32.dp),
             colors = CardDefaults.cardColors(containerColor = cardBg),
-            border = BorderStroke(1.dp, Color.White.copy(0.1f)),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.1f)),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
@@ -417,8 +418,8 @@ fun StatItem(icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color
             Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(value, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-        Text(label, color = Color.Gray, fontSize = 10.sp)
+        Text(value, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
     }
 }
 
@@ -437,7 +438,7 @@ fun BottomNavItem(
         Icon(
             icon, 
             contentDescription = label, 
-            tint = if (selected) activeColor else Color.Gray,
+            tint = if (selected) activeColor else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(24.dp)
         )
         if (selected) {

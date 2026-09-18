@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.outlined.Eco
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,25 +37,25 @@ fun InsightsScreen(
     onNavigate: (String) -> Unit,
     viewModel: ProductViewModel
 ) {
-    val cardBg = Color(0xFF0F172A)
-    val cyanGlow = Color(0xFF06B6D4)
+    val cardBg = MaterialTheme.colorScheme.surface
+    val cyanGlow = MaterialTheme.colorScheme.primary
 
-    Box(modifier = modifier.fillMaxSize().background(Color(0xFF020617))) {
+    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
             Spacer(modifier = Modifier.height(24.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.TrendingUp, contentDescription = null, tint = cyanGlow)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Market Insights", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Text("Market Insights", color = MaterialTheme.colorScheme.onBackground, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             }
-            Text("Know what buyers want. Price with confidence.", color = Color.Gray, fontSize = 12.sp)
+            Text("Know what buyers want. Price with confidence.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             
             Spacer(modifier = Modifier.height(24.dp))
             
             LazyColumn(modifier = Modifier.weight(1f)) {
                 item {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text("Trending Categories", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("Trending Categories", color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         Text("View all", color = cyanGlow, fontSize = 12.sp, modifier = Modifier.clickable { /* Handle View all */ })
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -68,7 +69,7 @@ fun InsightsScreen(
                 
                 item {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text("Price Intelligence", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("Price Intelligence", color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         Text("View all", color = cyanGlow, fontSize = 12.sp, modifier = Modifier.clickable { /* Handle View all */ })
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -76,41 +77,41 @@ fun InsightsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = cardBg),
                         shape = RoundedCornerShape(16.dp),
-                        border = BorderStroke(1.dp, Color.White.copy(0.05f))
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.05f))
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(modifier = Modifier.size(48.dp).background(Color(0xFF1E293B), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
-                                    Icon(Icons.Outlined.Eco, contentDescription = null, tint = Color.Gray)
+                                Box(modifier = Modifier.size(48.dp).background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Outlined.Eco, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column {
-                                    Text("Bamboo Basket", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                                    Text("Market Range", color = Color.Gray, fontSize = 10.sp)
-                                    Text("₹799 - ₹899", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                    Text("Bamboo Basket", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                    Text("Market Range", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
+                                    Text("₹799 - ₹899", color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontWeight = FontWeight.Medium)
                                 }
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Column {
-                                    Text("Recommended Price", color = Color.Gray, fontSize = 10.sp)
+                                    Text("Recommended Price", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
                                     Text("₹849", color = cyanGlow, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                                 }
                                 Column {
-                                    Text("Your Cost", color = Color.Gray, fontSize = 10.sp)
-                                    Text("₹600", color = Color.White, fontSize = 14.sp)
+                                    Text("Your Cost", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
+                                    Text("₹600", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp)
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    Text("Potential Margin", color = Color.Gray, fontSize = 10.sp)
-                                    Text("₹249", color = Color.White, fontSize = 14.sp)
+                                    Text("Potential Margin", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
+                                    Text("₹249", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp)
                                 }
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                CircularProgressIndicator(progress = 0.87f, color = cyanGlow, trackColor = Color.DarkGray, modifier = Modifier.size(48.dp))
+                                CircularProgressIndicator(progress = 0.87f, color = cyanGlow, trackColor = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.size(48.dp))
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column {
-                                    Text("Strong Opportunity", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                    Text("87% confidence", color = Color.Gray, fontSize = 12.sp)
+                                    Text("Strong Opportunity", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    Text("87% confidence", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                                 }
                             }
                         }
@@ -119,28 +120,28 @@ fun InsightsScreen(
                 }
 
                 item {
-                    Text("Demand & Trends", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text("Demand & Trends", color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(16.dp))
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = cardBg),
                         shape = RoundedCornerShape(16.dp),
-                        border = BorderStroke(1.dp, Color.White.copy(0.05f))
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.05f))
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Bamboo Home Decor", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Text("Bamboo Home Decor", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                             Spacer(modifier = Modifier.height(16.dp))
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Column {
-                                    Text("Demand", color = Color.Gray, fontSize = 10.sp)
+                                    Text("Demand", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
                                     Text("HIGH", color = Color(0xFF10B981), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                 }
                                 Column {
-                                    Text("Trend", color = Color.Gray, fontSize = 10.sp)
+                                    Text("Trend", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
                                     Text("↑ 18%", color = cyanGlow, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                 }
                                 Column {
-                                    Text("Buyer Interest", color = Color.Gray, fontSize = 10.sp)
+                                    Text("Buyer Interest", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
                                     Text("+18%", color = cyanGlow, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                 }
                             }
@@ -152,7 +153,7 @@ fun InsightsScreen(
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E3A8A).copy(alpha = 0.3f)),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)),
                         shape = RoundedCornerShape(16.dp),
                         border = BorderStroke(1.dp, cyanGlow.copy(alpha = 0.3f))
                     ) {
@@ -162,14 +163,14 @@ fun InsightsScreen(
                                     Icon(Icons.Default.Info, contentDescription = null, tint = cyanGlow)
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column {
-                                        Text("Best Opportunity", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                        Text("Best Opportunity", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                         Text("Bamboo Home Decor", color = cyanGlow, fontSize = 12.sp)
                                     }
                                 }
-                                Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = Color.Gray)
+                                Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("Demand is high. Similar products are selling between ₹799 and ₹899.", color = Color.LightGray, fontSize = 12.sp)
+                            Text("Demand is high. Similar products are selling between ₹799 and ₹899.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                             Spacer(modifier = Modifier.height(12.dp))
                             Button(
                                 onClick = { /* TODO */ },
@@ -198,16 +199,16 @@ fun InsightsScreen(
 fun TrendCategoryCard(title: String, trend: String) {
     Card(
         modifier = Modifier.width(120.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-        border = BorderStroke(1.dp, Color.White.copy(0.05f)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.05f)),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(modifier = Modifier.size(40.dp).background(Color(0xFF1E293B), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
-                Icon(Icons.Outlined.Eco, contentDescription = null, tint = Color.Gray)
+            Box(modifier = Modifier.size(40.dp).background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                Icon(Icons.Outlined.Eco, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(title, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+            Text(title, color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontWeight = FontWeight.Medium)
             Spacer(modifier = Modifier.height(4.dp))
             Text(trend, color = Color(0xFF10B981), fontSize = 12.sp, fontWeight = FontWeight.Bold)
         }

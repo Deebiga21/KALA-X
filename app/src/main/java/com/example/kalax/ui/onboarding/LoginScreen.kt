@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,20 +34,20 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF020617))
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
             .padding(24.dp)
     ) {
         Spacer(modifier = Modifier.height(32.dp))
         Text(
             text = "Welcome to KALA-X",
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = "Set up your artisan profile to continue.",
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 14.sp
         )
         Spacer(modifier = Modifier.height(32.dp))
@@ -57,10 +58,10 @@ fun LoginScreen(
             label = { Text("Full Name") },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color(0xFF06B6D4),
-                unfocusedBorderColor = Color(0xFF1E293B)
+                focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
             ),
             singleLine = true
         )
@@ -71,10 +72,10 @@ fun LoginScreen(
             label = { Text("Phone or Email") },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color(0xFF06B6D4),
-                unfocusedBorderColor = Color(0xFF1E293B)
+                focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
             ),
             singleLine = true
         )
@@ -86,10 +87,10 @@ fun LoginScreen(
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color(0xFF06B6D4),
-                unfocusedBorderColor = Color(0xFF1E293B)
+                focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
             ),
             singleLine = true
         )
@@ -100,16 +101,16 @@ fun LoginScreen(
             label = { Text("Craft Category (e.g. Terracotta)") },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color(0xFF06B6D4),
-                unfocusedBorderColor = Color(0xFF1E293B)
+                focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
             ),
             singleLine = true
         )
         Spacer(modifier = Modifier.height(16.dp))
         
-        Text("Preferred Language", color = Color.Gray, fontSize = 12.sp)
+        Text("Preferred Language", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -120,9 +121,9 @@ fun LoginScreen(
                     onClick = { language = lang },
                     label = { Text(lang) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF06B6D4).copy(alpha = 0.2f),
-                        selectedLabelColor = Color(0xFF06B6D4),
-                        labelColor = Color.Gray
+                        selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                        selectedLabelColor = MaterialTheme.colorScheme.primary,
+                        labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 )
             }
@@ -144,10 +145,10 @@ fun LoginScreen(
                 }
             },
             modifier = Modifier.fillMaxWidth().height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             shape = RoundedCornerShape(24.dp)
         ) {
-            Text("Complete Registration", color = Color.Black, fontWeight = FontWeight.Bold)
+            Text("Complete Registration", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
         }
     }
 }
