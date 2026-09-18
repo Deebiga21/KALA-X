@@ -89,7 +89,20 @@ class ProductViewModel(
     private val _profile = MutableStateFlow<com.example.kalax.data.local.entity.ArtisanProfile?>(null)
     val profile: StateFlow<com.example.kalax.data.local.entity.ArtisanProfile?> = _profile.asStateFlow()
 
-    private val _marketInsights = MutableStateFlow<com.example.kalax.data.remote.InsightsResponse?>(null)
+    private val _marketInsights = MutableStateFlow<com.example.kalax.data.remote.InsightsResponse?>(
+        com.example.kalax.data.remote.InsightsResponse(
+            recommended_price = 849,
+            your_cost = 600,
+            potential_margin = 249,
+            confidence_score = 87,
+            opportunity_level = "Strong Opportunity",
+            top_category = "Bamboo Home Decor",
+            demand_level = "HIGH",
+            trend_percentage = 18,
+            buyer_interest_percentage = 18,
+            opportunity_description = "Demand is high. Similar products are selling between ₹799 and ₹899."
+        )
+    )
     val marketInsights: StateFlow<com.example.kalax.data.remote.InsightsResponse?> = _marketInsights.asStateFlow()
 
     val catalogList: StateFlow<List<CatalogItem>> =
