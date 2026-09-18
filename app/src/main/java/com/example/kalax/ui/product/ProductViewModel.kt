@@ -43,13 +43,15 @@ data class ProductDraft(
     val labourCost: Int = 0,
     val packagingCost: Int = 0,
     val otherCost: Int = 0,
-    val totalCost: Int = 0,
     val recommendedPrice: Int = 0,
     val score: Int = 0,
     val dimensions: String = "",
     val status: String = "Draft",
     val transcribedText: String = ""
-)
+) {
+    val totalCost: Int
+        get() = rawCost + labourCost + packagingCost + otherCost
+}
 
 fun CatalogItem.toDraft(): ProductDraft = ProductDraft(
     id = this.id.toString(),
@@ -64,7 +66,6 @@ fun CatalogItem.toDraft(): ProductDraft = ProductDraft(
     labourCost = this.labourCost.toInt(),
     packagingCost = this.packagingCost.toInt(),
     otherCost = this.otherCost.toInt(),
-    totalCost = (this.materialCost + this.labourCost + this.packagingCost + this.otherCost).toInt(),
     recommendedPrice = this.suggestedPrice.toInt(),
     score = this.readinessScore,
     dimensions = this.dimensions,
