@@ -155,7 +155,7 @@ fun HomeScreen(
             ) {
                 // Wavy Abstract Background behind cards
                 AsyncImage(
-                    model = com.example.kalax.R.drawable.ai_basket,
+                    model = com.example.kalax.R.drawable.dashboard_hero,
                     contentDescription = "Abstract Waves",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
