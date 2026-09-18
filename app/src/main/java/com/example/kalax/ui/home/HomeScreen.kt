@@ -141,52 +141,54 @@ fun HomeScreen(
             
             Spacer(modifier = Modifier.height(32.dp))
             
+            // Staggered Cards Graphic
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(350.dp)
+                    .height(360.dp)
             ) {
-                Row(
+                // 1. SMART CATALOG
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 24.dp)
-                        .align(Alignment.TopEnd),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
+                        .align(Alignment.TopCenter)
+                        .offset(x = (-10).dp, y = 0.dp)
                 ) {
-                    Card(
-                        shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(containerColor = CardWhite),
-                        border = BorderStroke(1.dp, TextDark.copy(alpha = 0.2f)),
-                        modifier = Modifier.zIndex(1f).offset(x = 16.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Card(
+                            shape = RoundedCornerShape(24.dp),
+                            colors = CardDefaults.cardColors(containerColor = CardWhite),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            modifier = Modifier.zIndex(1f).offset(x = 24.dp)
                         ) {
-                            Icon(Icons.Outlined.GridView, contentDescription = null, tint = TextDark)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("SMART CATALOG", color = TextDark, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Outlined.GridView, contentDescription = null, tint = TextDark, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("SMART CATALOG", color = TextDark, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            }
                         }
+                        
+                        AsyncImage(
+                            model = "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=300&q=80",
+                            contentDescription = "Shelf",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .width(140.dp)
+                                .height(90.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                        )
                     }
-                    
-                    AsyncImage(
-                        model = "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=300&q=80",
-                        contentDescription = "Shelf",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .width(120.dp)
-                            .height(80.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                    )
                 }
 
+                // 2. SMART PRICE
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 48.dp)
                         .align(Alignment.Center)
-                        .offset(y = (-10).dp)
+                        .padding(horizontal = 32.dp)
+                        .offset(y = 10.dp)
                 ) {
                     AsyncImage(
                         model = "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=500&q=80",
@@ -194,15 +196,16 @@ fun HomeScreen(
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(100.dp)
+                            .height(110.dp)
+                            .padding(top = 24.dp)
                             .clip(RoundedCornerShape(16.dp))
                     )
                     
                     Card(
                         shape = RoundedCornerShape(24.dp),
                         colors = CardDefaults.cardColors(containerColor = CardWhite),
-                        border = BorderStroke(1.dp, TextDark.copy(alpha = 0.2f)),
-                        modifier = Modifier.align(Alignment.TopCenter).offset(y = (-20).dp, x = (-40).dp)
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        modifier = Modifier.align(Alignment.TopStart).offset(x = 24.dp, y = 0.dp)
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
@@ -213,38 +216,38 @@ fun HomeScreen(
                     }
                 }
                 
-                Row(
+                // 3. MARKET READY
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 24.dp)
-                        .align(Alignment.BottomStart),
-                    verticalAlignment = Alignment.CenterVertically
+                        .align(Alignment.BottomCenter)
+                        .offset(x = (-30).dp, y = 0.dp)
                 ) {
-                    Card(
-                        shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(containerColor = CardWhite),
-                        border = BorderStroke(1.dp, TextDark.copy(alpha = 0.2f)),
-                        modifier = Modifier.zIndex(1f).offset(x = 16.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Card(
+                            shape = RoundedCornerShape(24.dp),
+                            colors = CardDefaults.cardColors(containerColor = CardWhite),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            modifier = Modifier.zIndex(1f).offset(x = 24.dp)
                         ) {
-                            Icon(Icons.Outlined.Home, contentDescription = null, tint = TextDark)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("MARKET READY", color = TextDark, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Outlined.Home, contentDescription = null, tint = TextDark, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("MARKET READY", color = TextDark, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            }
                         }
+                        
+                        AsyncImage(
+                            model = "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=300&q=80",
+                            contentDescription = "Market",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                        )
                     }
-                    
-                    AsyncImage(
-                        model = "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=300&q=80",
-                        contentDescription = "Market",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .offset(x = (-8).dp)
-                    )
                 }
             }
             
