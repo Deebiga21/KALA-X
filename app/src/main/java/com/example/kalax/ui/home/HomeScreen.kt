@@ -426,11 +426,13 @@ fun BottomNavBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(BeigeNav)
-            .padding(vertical = 12.dp)
+            .padding(horizontal = 24.dp, vertical = 24.dp)
+            .background(Color.White.copy(alpha = 0.4f), RoundedCornerShape(40.dp))
+            .border(1.dp, Color.White.copy(alpha = 0.6f), RoundedCornerShape(40.dp))
+            .padding(vertical = 12.dp, horizontal = 16.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -476,7 +478,7 @@ fun BottomNavItem(
         Box(
             modifier = Modifier
                 .size(48.dp)
-                .background(if (selected) BeigeNavActive else Color.Transparent, RoundedCornerShape(16.dp)),
+                .background(if (selected) Color.White.copy(alpha = 0.6f) else Color.Transparent, RoundedCornerShape(16.dp)),
             contentAlignment = Alignment.Center
         ) {
             Icon(

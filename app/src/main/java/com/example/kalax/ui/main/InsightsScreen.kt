@@ -226,25 +226,10 @@ fun InsightsScreen(
             }
         }
         
-        // Use the existing shared BottomNavBar from HomeScreen or define a local one
-        Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(horizontal = 24.dp, vertical = 24.dp)) {
-            Card(
-                shape = RoundedCornerShape(32.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF3EFE9)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 24.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    com.example.kalax.ui.home.BottomNavItem(icon = Icons.Outlined.Home, label = "Home", selected = currentRoute == "Home", onClick = { onNavigate("Home") })
-                    com.example.kalax.ui.home.BottomNavItem(icon = Icons.Outlined.GridView, label = "Catalog", selected = currentRoute == "Catalog", onClick = { onNavigate("Catalog") })
-                    com.example.kalax.ui.home.BottomNavItem(icon = Icons.Outlined.BarChart, label = "Insights", selected = currentRoute == "Insights", onClick = { onNavigate("Insights") })
-                    com.example.kalax.ui.home.BottomNavItem(icon = Icons.Outlined.Person, label = "Profile", selected = currentRoute == "Profile", onClick = { onNavigate("Profile") })
-                }
-            }
-        }
+        BottomNavBar(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            currentRoute = currentRoute,
+            onNavigate = onNavigate
+        )
     }
 }
