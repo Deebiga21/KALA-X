@@ -256,67 +256,6 @@ fun HomeScreen(
                     }
                 }
                 
-                // 3. MARKET READY
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .offset(x = (-10).dp, y = (-20).dp)
-                        .zIndex(2f)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Card(
-                            shape = RoundedCornerShape(24.dp),
-                            colors = CardDefaults.cardColors(containerColor = CardWhite.copy(alpha = 0.95f)),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                            modifier = Modifier.zIndex(1f).offset(x = 16.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(Icons.Outlined.Storefront, contentDescription = null, tint = TextDark, modifier = Modifier.size(20.dp))
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text("MARKET READY", color = TextDark, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                            }
-                        }
-                        
-                        Card(
-                            shape = RoundedCornerShape(24.dp),
-                            colors = CardDefaults.cardColors(containerColor = CardWhite),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                            modifier = Modifier.size(110.dp)
-                        ) {
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        CircularProgressIndicator(
-                                            progress = { 0.95f },
-                                            modifier = Modifier.size(60.dp),
-                                            color = TealChart,
-                                            trackColor = SageGreen,
-                                            strokeWidth = 6.dp
-                                        )
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                            Text("95%", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TealChart)
-                                            Text("READY", fontSize = 8.sp, color = TextDark.copy(alpha=0.6f))
-                                        }
-                                    }
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .offset(x = (-4).dp, y = 4.dp)
-                                        .size(24.dp)
-                                        .background(SageGreen, CircleShape)
-                                        .border(2.dp, CardWhite, CircleShape),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(Icons.Default.Check, contentDescription = null, tint = TextDark, modifier = Modifier.size(14.dp))
-                                }
-                            }
-                        }
-                    }
-                }
             }
             
             Spacer(modifier = Modifier.height(24.dp))
