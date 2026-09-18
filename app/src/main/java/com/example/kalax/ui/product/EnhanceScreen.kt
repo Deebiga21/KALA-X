@@ -27,8 +27,8 @@ fun EnhanceScreen(
 ) {
     val draft by viewModel.draft.collectAsState()
     val pipelineState by viewModel.pipelineState.collectAsState()
-    val isDone = pipelineState == "ImageProcessed" || pipelineState == "TranscribingAudio" || pipelineState == "GeneratingCatalog" || pipelineState == "CatalogGenerated"
-    val isProcessing = pipelineState == "ProcessingImage"
+    val isDone = draft.enhancedImageUri != null && pipelineState !is PipelineState.Enhancing
+    val isProcessing = pipelineState is PipelineState.Enhancing
 
     val progress = when {
         isDone -> 1f
@@ -39,7 +39,7 @@ fun EnhanceScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF1F5E1))
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
     ) {
         Row(
@@ -47,12 +47,12 @@ fun EnhanceScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color(0xFF4A5D44))
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onBackground)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text("Enhancing Your Image", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("From raw to professional", color = Color(0xFF697A63), fontSize = 12.sp)
+                Text("Enhancing Your Image", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("From raw to professional", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             }
         }
         
@@ -63,14 +63,14 @@ fun EnhanceScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Before", color = Color(0xFF697A63), fontSize = 14.sp)
-                Text("After", color = Color(0xFF4A5D44), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text("Before", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
+                Text("After", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 // Original Image
-                Box(modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(16.dp)).background(Color.DarkGray)) {
+                Box(modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
                     if (draft.imageUri != null) {
                         AsyncImage(
                             model = java.io.File(draft.imageUri!!),
@@ -82,7 +82,7 @@ fun EnhanceScreen(
                 }
                 
                 // Enhanced Image
-                Box(modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(16.dp)).background(Color(0xFFC4D1A4))) {
+                Box(modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
                     if (isDone && draft.enhancedImageUri != null) {
                         AsyncImage(
                             model = java.io.File(draft.enhancedImageUri!!),
@@ -92,7 +92,7 @@ fun EnhanceScreen(
                         )
                     } else if (!isDone) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = Color(0xFF98B891))
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
@@ -115,11 +115,11 @@ fun EnhanceScreen(
                 enabled = isDone,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF98B891),
-                    disabledContainerColor = Color(0xFFC4D1A4)
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             ) {
-                Text("Use Enhanced Image", color = if (isDone) Color.Black else Color(0xFF697A63), fontWeight = FontWeight.Bold)
+                Text("Use Enhanced Image", color = if (isDone) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -129,7 +129,7 @@ fun EnhanceScreen(
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 enabled = isDone
             ) {
-                Text("Try Again", color = if (isDone) Color(0xFF4A5D44) else Color(0xFF697A63))
+                Text("Try Again", color = if (isDone) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         
@@ -141,13 +141,13 @@ fun EnhanceScreen(
 fun ProgressItem(text: String, isDone: Boolean) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         if (isDone) {
-            Icon(Icons.Outlined.AutoAwesome, contentDescription = null, tint = Color(0xFF98B891), modifier = Modifier.size(20.dp))
+            Icon(Icons.Outlined.AutoAwesome, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
         } else {
             Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(strokeWidth = 2.dp, color = Color(0xFF697A63), modifier = Modifier.size(12.dp))
+                CircularProgressIndicator(strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(12.dp))
             }
         }
         Spacer(modifier = Modifier.width(12.dp))
-        Text(text, color = if (isDone) Color(0xFF4A5D44) else Color(0xFF697A63), fontSize = 14.sp)
+        Text(text, color = if (isDone) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
     }
 }

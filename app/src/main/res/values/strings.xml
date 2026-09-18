@@ -1,3 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KALA X</string>
+    <string name="app_name">KALA-X</string>
+    <string name="tagline">From Handmade to Market-Ready</string>
+    <string name="welcome_back">Welcome back,</string>
+    <string name="create_product">Create Product</string>
+    <string name="my_catalog">My Catalog</string>
+    <string name="market_insights">Market Insights</string>
+    <string name="my_profile">My Profile</string>
+    <string name="home">Home</string>
+    <string name="catalog">Catalog</string>
+    <string name="insights">Insights</string>
+    <string name="profile">Profile</string>
+    <string name="capture_your_craft">Capture Your Craft</string>
+    <string name="describe_in_language">Describe in Your Language</string>
+    <string name="sell_with_confidence">Sell with Confidence</string>
+    <string name="get_started">Get Started</string>
+    <string name="skip">Skip</string>
+    <string name="next">Next</string>
+    <string name="complete_registration">Complete Registration</string>
+    <string name="full_name">Full Name</string>
+    <string name="phone_or_email">Phone or Email</string>
+    <string name="password">Password</string>
+    <string name="craft_category">Craft Category</string>
+    <string name="preferred_language">Preferred Language</string>
+    <string name="publish">Publish to Store</string>
+    <string name="save_draft">Save Draft</string>
+    <string name="search_products">Search products...</string>
+    <string name="no_products">No products found.</string>
+    <string name="all">All</string>
+    <string name="drafts">Drafts</string>
+    <string name="published">Published</string>
 </resources>

@@ -72,7 +72,7 @@ fun CaptureScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF1F5E1))
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
     ) {
         Row(
@@ -80,12 +80,12 @@ fun CaptureScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color(0xFF4A5D44))
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onBackground)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text("Create Product", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("Start with a photo", color = Color(0xFF697A63), fontSize = 12.sp)
+                Text("Create Product", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("Start with a photo", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             }
         }
         
@@ -95,21 +95,21 @@ fun CaptureScreen(
             modifier = Modifier.fillMaxWidth().padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(Icons.Outlined.CameraAlt, contentDescription = null, tint = Color(0xFF697A63), modifier = Modifier.size(64.dp))
+            Icon(Icons.Outlined.CameraAlt, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(64.dp))
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Capture Product", color = Color(0xFF4A5D44), fontSize = 18.sp, fontWeight = FontWeight.Medium)
+            Text("Capture Product", color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Medium)
             
             Spacer(modifier = Modifier.height(32.dp))
             
             if (isUploading) {
-                CircularProgressIndicator(color = Color(0xFF98B891))
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Uploading...", color = Color(0xFF4A5D44))
+                Text("Uploading...", color = MaterialTheme.colorScheme.onBackground)
             } else {
                 Button(
                     onClick = { cameraLauncher.launch(null) },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF98B891))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Icon(Icons.Outlined.CameraAlt, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
@@ -122,9 +122,9 @@ fun CaptureScreen(
                     onClick = { galleryLauncher.launch("image/*") },
                     modifier = Modifier.fillMaxWidth().height(56.dp)
                 ) {
-                    Icon(Icons.Outlined.PhotoLibrary, contentDescription = null, tint = Color(0xFF98B891))
+                    Icon(Icons.Outlined.PhotoLibrary, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Upload from Gallery", color = Color(0xFF4A5D44))
+                    Text("Upload from Gallery", color = MaterialTheme.colorScheme.onBackground)
                 }
             }
         }

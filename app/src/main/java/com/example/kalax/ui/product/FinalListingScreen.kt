@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +39,7 @@ fun FinalListingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF1F5E1))
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
     ) {
         Row(
@@ -46,21 +47,21 @@ fun FinalListingScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color(0xFF4A5D44))
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onBackground)
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Final Preview", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Text("Final Preview", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 20.sp)
         }
         
         Spacer(modifier = Modifier.height(16.dp))
         
         Card(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF4A5D44)),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Box(modifier = Modifier.fillMaxWidth().height(250.dp).clip(RoundedCornerShape(8.dp)).background(Color(0xFF697A63))) {
+                Box(modifier = Modifier.fillMaxWidth().height(250.dp).clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.onSurfaceVariant)) {
                     val displayImage = draft.enhancedImageUri ?: draft.imageUri
                     if (displayImage != null) {
                         AsyncImage(
@@ -74,9 +75,9 @@ fun FinalListingScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(draft.name.ifEmpty { "Product Name" }, color = Color.Black, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                    Text("₹${draft.recommendedPrice}", color = Color(0xFF98B891), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text("₹${draft.recommendedPrice}", color = MaterialTheme.colorScheme.primary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 }
-                Text("${draft.category} • ${draft.material}", color = Color(0xFF0284C7), fontSize = 12.sp)
+                Text("${draft.category} • ${draft.material}", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(draft.description.ifEmpty { "Description here..." }, color = Color.DarkGray, fontSize = 14.sp)
             }
@@ -92,17 +93,17 @@ fun FinalListingScreen(
                 },
                 modifier = Modifier.weight(1f).height(56.dp)
             ) {
-                Text("Save Draft", color = Color(0xFF4A5D44))
+                Text("Save Draft", color = MaterialTheme.colorScheme.onBackground)
             }
             Button(
                 onClick = { isPublishing = true },
                 modifier = Modifier.weight(1f).height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF98B891))
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 if (isPublishing) {
-                    CircularProgressIndicator(color = Color.Black, modifier = Modifier.size(24.dp))
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
                 } else {
-                    Text("Publish Now", color = Color.Black, fontWeight = FontWeight.Bold)
+                    Text("Publish Now", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                 }
             }
         }

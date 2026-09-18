@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KALA-X</string>
+    <string name="tagline">हस्तनिर्मित से बाज़ार-तैयार तक</string>
+    <string name="welcome_back">वापसी पर स्वागत है,</string>
+    <string name="create_product">उत्पाद बनाएँ</string>
+    <string name="my_catalog">मेरी सूची</string>
+    <string name="market_insights">बाज़ार अंतर्दृष्टि</string>
+    <string name="my_profile">मेरा प्रोफ़ाइल</string>
+    <string name="home">होम</string>
+    <string name="catalog">सूची</string>
+    <string name="insights">अंतर्दृष्टि</string>
+    <string name="profile">प्रोफ़ाइल</string>
+    <string name="capture_your_craft">अपनी कला को कैद करें</string>
+    <string name="describe_in_language">अपनी भाषा में वर्णन करें</string>
+    <string name="sell_with_confidence">आत्मविश्वास से बेचें</string>
+    <string name="get_started">शुरू करें</string>
+    <string name="skip">छोड़ें</string>
+    <string name="next">अगला</string>
+    <string name="complete_registration">पंजीकरण पूरा करें</string>
+    <string name="full_name">पूरा नाम</string>
+    <string name="phone_or_email">फ़ोन या ईमेल</string>
+    <string name="password">पासवर्ड</string>
+    <string name="craft_category">शिल्प श्रेणी</string>
+    <string name="preferred_language">पसंदीदा भाषा</string>
+    <string name="publish">स्टोर में प्रकाशित करें</string>
+    <string name="save_draft">ड्राफ़्ट सेव करें</string>
+    <string name="search_products">उत्पाद खोजें...</string>
+    <string name="no_products">कोई उत्पाद नहीं मिला।</string>
+    <string name="all">सभी</string>
+    <string name="drafts">ड्राफ़्ट</string>
+    <string name="published">प्रकाशित</string>
+</resources>

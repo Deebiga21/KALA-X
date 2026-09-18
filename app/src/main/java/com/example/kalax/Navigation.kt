@@ -3,6 +3,7 @@ package com.example.kalax
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -14,6 +15,7 @@ import com.example.kalax.ui.main.MainScreen
 import com.example.kalax.ui.main.CatalogScreen
 import com.example.kalax.ui.main.InsightsScreen
 import com.example.kalax.ui.main.ProfileScreen
+import com.example.kalax.ui.main.ProductDetailScreen
 import com.example.kalax.ui.home.HomeScreen
 import com.example.kalax.ui.product.CaptureScreen
 import com.example.kalax.ui.product.*
@@ -25,26 +27,36 @@ import kotlinx.serialization.Serializable
 @Composable
 fun MainNavigation() {
   val backStack = rememberNavBackStack(Splash)
-  
-  if (backStack.isEmpty()) {
-      backStack.add(Splash)
-  }
-  
   val context = LocalContext.current
   val app = context.applicationContext as KalaXApplication
   val productViewModel: ProductViewModel = viewModel(factory = ProductViewModel.provideFactory(app))
 
   val onNavigate: (String) -> Unit = { route ->
-    backStack.clear()
-    when (route) {
-      "Home" -> backStack.add(Home)
-      "Catalog" -> backStack.add(Catalog)
-      "Insights" -> backStack.add(Insights)
-      "Profile" -> backStack.add(Profile)
+    if (route.startsWith("ProductDetail/")) {
+        val id = route.removePrefix("ProductDetail/")
+        backStack.add(ProductDetail(id))
+    } else if (route == "CreateProduct") {
+        productViewModel.startNewSession()
+        backStack.add(Capture)
+    } else {
+        backStack.clear()
+        when (route) {
+          "Home" -> backStack.add(Home)
+          "Catalog" -> backStack.add(Catalog)
+          "Insights" -> backStack.add(Insights)
+          "Profile" -> backStack.add(Profile)
+        }
     }
   }
 
-  val activity = (context as? android.app.Activity)
+  if (backStack.isEmpty()) {
+      LaunchedEffect(Unit) {
+          backStack.add(Splash)
+      }
+      return // Wait for LaunchedEffect to seed the backstack
+  }
+
+  val activity = context as? android.app.Activity ?: (context as? android.content.ContextWrapper)?.baseContext as? android.app.Activity
 
   NavDisplay(
     backStack = backStack,
@@ -95,7 +107,10 @@ fun MainNavigation() {
               modifier = Modifier.safeDrawingPadding(),
               currentRoute = "Home",
               onNavigate = onNavigate,
-              onCreateProductClick = { backStack.add(Capture) },
+              onCreateProductClick = { 
+                  productViewModel.startNewSession()
+                  backStack.add(Capture) 
+              },
               viewModel = productViewModel
           )
         }
@@ -172,6 +187,13 @@ fun MainNavigation() {
                   backStack.add(Catalog)
               }
           )
+        }
+        entry<ProductDetail> { args ->
+            ProductDetailScreen(
+                productId = args.productId,
+                viewModel = productViewModel,
+                onBack = { backStack.removeLastOrNull() }
+            )
         }
       },
   )

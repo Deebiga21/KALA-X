@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,32 +47,32 @@ fun SplashScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF1F5E1)),
+            .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
             imageVector = Icons.Outlined.Storefront,
             contentDescription = "Logo",
-            tint = Color(0xFF98B891),
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(80.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             "KALA-X",
-            color = Color(0xFF4A5D44),
+            color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold,
             fontSize = 32.sp
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             "From Handmade to Market-Ready",
-            color = Color(0xFF697A63),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 14.sp
         )
         Spacer(modifier = Modifier.height(48.dp))
         CircularProgressIndicator(
-            color = Color(0xFF98B891),
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(24.dp),
             strokeWidth = 2.dp
         )

@@ -20,3 +20,4 @@ import kotlinx.serialization.Serializable
 @Serializable data object Pricing : NavKey
 @Serializable data object Readiness : NavKey
 @Serializable data object FinalListing : NavKey
+@Serializable data class ProductDetail(val productId: String) : NavKey

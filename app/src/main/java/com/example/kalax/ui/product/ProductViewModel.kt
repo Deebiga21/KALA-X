@@ -14,9 +14,21 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
+
+sealed class PipelineState {
+    object Idle : PipelineState()
+    object Capturing : PipelineState()
+    object Enhancing : PipelineState()
+    object Transcribing : PipelineState()
+    object Generating : PipelineState()
+    object Pricing : PipelineState()
+    object Reviewing : PipelineState()
+}
 
 data class ProductDraft(
     val id: String = UUID.randomUUID().toString(),
@@ -31,13 +43,15 @@ data class ProductDraft(
     val labourCost: Int = 0,
     val packagingCost: Int = 0,
     val otherCost: Int = 0,
-    val totalCost: Int = 0,
     val recommendedPrice: Int = 0,
     val score: Int = 0,
     val dimensions: String = "",
     val status: String = "Draft",
     val transcribedText: String = ""
-)
+) {
+    val totalCost: Int
+        get() = rawCost + labourCost + packagingCost + otherCost
+}
 
 fun CatalogItem.toDraft(): ProductDraft = ProductDraft(
     id = this.id.toString(),
@@ -52,7 +66,6 @@ fun CatalogItem.toDraft(): ProductDraft = ProductDraft(
     labourCost = this.labourCost.toInt(),
     packagingCost = this.packagingCost.toInt(),
     otherCost = this.otherCost.toInt(),
-    totalCost = (this.materialCost + this.labourCost + this.packagingCost + this.otherCost).toInt(),
     recommendedPrice = this.suggestedPrice.toInt(),
     score = this.readinessScore,
     dimensions = this.dimensions,
@@ -71,20 +84,89 @@ class ProductViewModel(
     private val _catalog = MutableStateFlow<List<ProductDraft>>(emptyList())
     val catalog: StateFlow<List<ProductDraft>> = _catalog.asStateFlow()
 
-    private val _pipelineState = MutableStateFlow<String>("Idle")
-    val pipelineState: StateFlow<String> = _pipelineState.asStateFlow()
+    private val _pipelineState = MutableStateFlow<PipelineState>(PipelineState.Idle)
+    val pipelineState: StateFlow<PipelineState> = _pipelineState.asStateFlow()
+
+    private val _profile = MutableStateFlow<com.example.kalax.data.local.entity.ArtisanProfile?>(null)
+    val profile: StateFlow<com.example.kalax.data.local.entity.ArtisanProfile?> = _profile.asStateFlow()
+
+    private val _marketInsights = MutableStateFlow<com.example.kalax.data.remote.InsightsResponse?>(
+        com.example.kalax.data.remote.InsightsResponse(
+            recommended_price = 849,
+            your_cost = 600,
+            potential_margin = 249,
+            confidence_score = 87,
+            opportunity_level = "Strong Opportunity",
+            top_category = "Bamboo Home Decor",
+            demand_level = "HIGH",
+            trend_percentage = 18,
+            buyer_interest_percentage = 18,
+            opportunity_description = "Demand is high. Similar products are selling between ₹799 and ₹899."
+        )
+    )
+    val marketInsights: StateFlow<com.example.kalax.data.remote.InsightsResponse?> = _marketInsights.asStateFlow()
+
+    val catalogList: StateFlow<List<CatalogItem>> =
+        container.database.catalogDao().getAllCatalogItems()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private var currentSessionId: Long? = null
 
     init {
         loadCatalog()
+        loadProfile()
+    }
+
+    private fun loadProfile() {
+        viewModelScope.launch {
+            container.database.profileDao().getProfile().collect { p ->
+                _profile.value = p
+            }
+        }
+    }
+
+
+    fun fetchInsights() {
+        viewModelScope.launch {
+            try {
+                val insights = container.pipelineRepository.getInsights()
+                _marketInsights.value = insights
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // Fallback dummy data if backend is unreachable so UI doesn't spin forever
+                _marketInsights.value = com.example.kalax.data.remote.InsightsResponse(
+                    recommended_price = 849,
+                    your_cost = 600,
+                    potential_margin = 249,
+                    confidence_score = 87,
+                    opportunity_level = "Strong Opportunity",
+                    top_category = "Bamboo Home Decor",
+                    demand_level = "HIGH",
+                    trend_percentage = 18,
+                    buyer_interest_percentage = 18,
+                    opportunity_description = "Demand is high. Similar products are selling between 799 and 899. (Offline Mode)"
+                )
+            }
+        }
     }
 
     fun loadCatalog() {
         viewModelScope.launch {
-            container.database.catalogDao().getAllCatalogItems().collect { list ->
-                _catalog.value = list.map { it.toDraft() }
+            try {
+                container.database.catalogDao().getAllCatalogItems().collect { list ->
+                    _catalog.value = list.map { it.toDraft() }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
+        }
+    }
+
+    fun startNewSession() {
+        viewModelScope.launch {
+            _pipelineState.value = PipelineState.Idle
+            _draft.value = ProductDraft()
+            currentSessionId = container.pipelineRepository.createProductSession()
         }
     }
 
@@ -145,64 +227,88 @@ class ProductViewModel(
     
     fun enhanceImage() {
         viewModelScope.launch {
-            _pipelineState.value = "ProcessingImage"
+            _pipelineState.value = PipelineState.Enhancing
             val uriStr = _draft.value.imageUri ?: return@launch
             val bitmap = BitmapFactory.decodeFile(uriStr)
+            
             val processed = container.pipelineRepository.processImage(currentSessionId ?: 0, bitmap, uriStr)
             _draft.update { it.copy(enhancedImageUri = processed) }
-            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
-            _pipelineState.value = "ImageProcessed"
+            _pipelineState.value = PipelineState.Idle
         }
     }
 
-    fun processVoice(language: String) {
+    fun processVoiceAndGenerate(language: String) {
         viewModelScope.launch {
-            _pipelineState.value = "TranscribingAudio"
+            _pipelineState.value = PipelineState.Transcribing
             val transcribed = container.pipelineRepository.transcribeAudio(currentSessionId ?: 0, null)
             _draft.update { it.copy(transcribedText = transcribed) }
-            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
-            _pipelineState.value = "AudioTranscribed"
+            
+            _pipelineState.value = PipelineState.Generating
+            container.pipelineRepository.generateCatalog(currentSessionId ?: 0, _draft.value.transcribedText)
+            syncLocalDraft()
+            
+            _pipelineState.value = PipelineState.Idle
+        }
+    }
+    
+    fun processVoice(language: String) {
+        viewModelScope.launch {
+            _pipelineState.value = PipelineState.Transcribing
+            val transcribed = container.pipelineRepository.transcribeAudio(currentSessionId ?: 0, null)
+            _draft.update { it.copy(transcribedText = transcribed) }
+            _pipelineState.value = PipelineState.Idle
+        }
+    }
+
+    fun processSpeechText(text: String) {
+        viewModelScope.launch {
+            _draft.update { it.copy(transcribedText = text) }
+            _pipelineState.value = PipelineState.Generating
+            container.pipelineRepository.generateCatalog(currentSessionId ?: 0, text)
+            syncLocalDraft()
+            _pipelineState.value = PipelineState.Idle
         }
     }
 
     fun generateCatalog() {
         viewModelScope.launch {
-            _pipelineState.value = "GeneratingCatalog"
+            _pipelineState.value = PipelineState.Generating
             container.pipelineRepository.generateCatalog(currentSessionId ?: 0, _draft.value.transcribedText)
             syncLocalDraft()
-            _pipelineState.value = "CatalogGenerated"
+            _pipelineState.value = PipelineState.Idle
         }
     }
 
     fun calculatePrice() {
         viewModelScope.launch {
-            val d = _draft.value
-            val price = container.pricingEngine.calculatePrice(
-                d.rawCost.toDouble(), d.labourCost.toDouble(), d.packagingCost.toDouble(), d.otherCost.toDouble()
-            )
+            _pipelineState.value = PipelineState.Pricing
+            val price = container.pipelineRepository.calculatePricing(currentSessionId ?: 0)
             _draft.update { it.copy(recommendedPrice = price.toInt()) }
-            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
+            _pipelineState.value = PipelineState.Idle
         }
     }
     
     fun getCommerceScore() {
         viewModelScope.launch {
-            val score = container.readinessEngine.calculateScore(getCurrentCatalogItem())
+            _pipelineState.value = PipelineState.Reviewing
+            val score = container.pipelineRepository.checkReadiness(currentSessionId ?: 0)
             _draft.update { it.copy(score = score) }
-            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
+            _pipelineState.value = PipelineState.Idle
         }
     }
 
     fun clearDraft() {
         currentSessionId = null
         _draft.value = ProductDraft()
+        _pipelineState.value = PipelineState.Idle
     }
 
     fun publishDraft() {
         _draft.update { it.copy(status = "Published") }
         viewModelScope.launch {
             if (currentSessionId != null) {
-                container.pipelineRepository.updateProduct(getCurrentCatalogItem())
+                container.pipelineRepository.publishProduct(currentSessionId!!)
+                // The updateProduct is optional here, as publishProduct should sync the state
             }
             clearDraft()
         }
@@ -210,16 +316,46 @@ class ProductViewModel(
 
     fun createProfile(name: String, emailOrPhone: String, craftType: String, language: String) {
         viewModelScope.launch {
+            val isEmail = emailOrPhone.contains("@")
             val profile = com.example.kalax.data.local.entity.ArtisanProfile(
                 id = "default_artisan",
                 name = name,
                 craftType = craftType,
                 baseHourlyLaborRate = 50.0, // Default
-                standardPackagingCost = 20.0 // Default
+                standardPackagingCost = 20.0, // Default
+                phone = if (!isEmail) emailOrPhone else "",
+                email = if (isEmail) emailOrPhone else "",
+                preferredLanguage = language
             )
             container.database.profileDao().insertProfile(profile)
         }
     }
+
+    fun registerArtisan(name: String, craftType: String, emailOrPhone: String = "", language: String = "English") {
+        viewModelScope.launch {
+            val isEmail = emailOrPhone.contains("@")
+            val profile = com.example.kalax.data.local.entity.ArtisanProfile(
+                id = "default_artisan",
+                name = name,
+                craftType = craftType,
+                baseHourlyLaborRate = 50.0,
+                standardPackagingCost = 20.0,
+                phone = if (!isEmail) emailOrPhone else "",
+                email = if (isEmail) emailOrPhone else "",
+                preferredLanguage = language
+            )
+            container.database.profileDao().insertProfile(profile)
+        }
+    }
+
+    fun updateProfile(name: String, language: String) {
+        viewModelScope.launch {
+            val current = _profile.value ?: return@launch
+            val updated = current.copy(name = name, preferredLanguage = language)
+            container.database.profileDao().insertProfile(updated)
+        }
+    }
+
 
     fun saveDraft() {
         _draft.update { it.copy(status = "Draft") }
@@ -228,6 +364,13 @@ class ProductViewModel(
                 container.pipelineRepository.updateProduct(getCurrentCatalogItem())
             }
             clearDraft()
+        }
+    }
+
+    fun deleteProduct(id: String) {
+        viewModelScope.launch {
+            val dbId = id.toLongOrNull() ?: return@launch
+            container.database.catalogDao().deleteById(dbId)
         }
     }
 

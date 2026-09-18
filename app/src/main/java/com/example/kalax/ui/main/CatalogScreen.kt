@@ -8,14 +8,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,19 +42,20 @@ fun CatalogScreen(
     var selectedFilter by remember { mutableStateOf("All") }
 
     val filteredCatalog = catalog.filter {
-        (selectedFilter == "All" || it.status == selectedFilter) &&
+        val targetStatus = if (selectedFilter == "Drafts") "Draft" else selectedFilter
+        (selectedFilter == "All" || it.status == targetStatus) &&
         (it.name.contains(searchQuery, ignoreCase = true))
     }
 
-    val cardBg = Color(0xFFD5E0B5)
-    val cyanGlow = Color(0xFF98B891)
+    val cardBg = MaterialTheme.colorScheme.surface
+    val cyanGlow = MaterialTheme.colorScheme.primary
 
-    Box(modifier = modifier.fillMaxSize().background(Color(0xFFF1F5E1))) {
+    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
             Spacer(modifier = Modifier.height(24.dp))
             
-            Text("My Catalog", color = Color(0xFF4A5D44), fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Text("Your digital shelf of handmade products.", color = Color(0xFF697A63), fontSize = 12.sp)
+            Text("My Catalog", color = MaterialTheme.colorScheme.onBackground, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text("Your digital shelf of handmade products.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -64,8 +64,8 @@ fun CatalogScreen(
                 TextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search products...", color = Color(0xFF697A63)) },
-                    leadingIcon = { Icon(Icons.Default.Search, tint = Color(0xFF697A63), contentDescription = null) },
+                    placeholder = { Text("Search products...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    leadingIcon = { Icon(Icons.Default.Search, tint = MaterialTheme.colorScheme.onSurfaceVariant, contentDescription = null) },
                     modifier = Modifier.weight(1f).height(50.dp),
                     shape = RoundedCornerShape(25.dp),
                     colors = TextFieldDefaults.colors(
@@ -73,8 +73,8 @@ fun CatalogScreen(
                         unfocusedContainerColor = cardBg,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = Color(0xFF4A5D44),
-                        unfocusedTextColor = Color(0xFF4A5D44)
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground
                     )
                 )
                 Spacer(modifier = Modifier.width(12.dp))
@@ -84,9 +84,9 @@ fun CatalogScreen(
                     shape = RoundedCornerShape(25.dp),
                     modifier = Modifier.height(50.dp)
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = null, tint = Color(0xFF4A5D44))
+                    Icon(Icons.Default.Add, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Create Product", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold)
+                    Text("Create Product", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -115,46 +115,7 @@ fun CatalogScreen(
 
             if (filteredCatalog.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(
-                            modifier = Modifier
-                                .size(80.dp)
-                                .background(cardBg, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.Outlined.Inventory2,
-                                contentDescription = null,
-                                tint = cyanGlow,
-                                modifier = Modifier.size(40.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "No products found",
-                            color = Color(0xFF4A5D44),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Your digital shelf is empty.\nLet's add your first handmade creation!",
-                            color = Color(0xFF697A63),
-                            fontSize = 14.sp,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Button(
-                            onClick = { onNavigate("CreateProduct") },
-                            colors = ButtonDefaults.buttonColors(containerColor = cyanGlow),
-                            shape = RoundedCornerShape(25.dp),
-                            modifier = Modifier.height(48.dp)
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = null, tint = Color(0xFF4A5D44))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Create Product", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold)
-                        }
-                    }
+                    Text("No products found.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 LazyVerticalGrid(
@@ -164,7 +125,18 @@ fun CatalogScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     items(filteredCatalog) { product ->
-                        ProductCard(product)
+                        CatalogProductCard(
+                            product = product,
+                            onClick = {
+                                if (product.status == "Published") {
+                                    // Navigate to details
+                                    onNavigate("ProductDetail/${product.id}")
+                                }
+                            },
+                            onDelete = {
+                                viewModel.deleteProduct(product.id.toString())
+                            }
+                        )
                     }
                     item { Spacer(modifier = Modifier.height(100.dp)) } // padding for bottom nav
                 }
@@ -183,11 +155,11 @@ fun CatalogScreen(
 fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .background(if (selected) Color(0xFF98B891) else Color(0xFFD5E0B5), RoundedCornerShape(20.dp))
+            .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
             .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        Text(label, color = Color(0xFF4A5D44), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        Text(label, color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -196,24 +168,54 @@ fun StatBox(modifier: Modifier, value: String, label: String) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .border(1.dp, Color(0xFF4A5D44).copy(0.1f), RoundedCornerShape(12.dp))
+            .border(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.1f), RoundedCornerShape(12.dp))
             .padding(vertical = 12.dp)
     ) {
-        Text(value, color = Color(0xFF4A5D44), fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Text(label, color = Color(0xFF697A63), fontSize = 12.sp)
+        Text(value, color = MaterialTheme.colorScheme.onBackground, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
     }
 }
 
 @Composable
-fun ProductCard(product: com.example.kalax.ui.product.ProductDraft) {
+fun CatalogProductCard(
+    product: com.example.kalax.ui.product.ProductDraft,
+    onClick: () -> Unit,
+    onDelete: () -> Unit
+) {
+    var showMenu by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Product") },
+            text = { Text("Are you sure you want to delete this product?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDelete()
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth().aspectRatio(0.75f),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFD5E0B5)),
+        modifier = Modifier.fillMaxWidth().aspectRatio(0.75f).clickable { onClick() },
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFF4A5D44).copy(0.05f))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.05f))
     ) {
         Column {
-            Box(modifier = Modifier.fillMaxWidth().weight(1.2f).background(Color(0xFFC4D1A4))) {
+            Box(modifier = Modifier.fillMaxWidth().weight(1.2f).background(MaterialTheme.colorScheme.surfaceVariant)) {
                 if (product.enhancedImageUri != null || product.imageUri != null) {
                     val uriToLoad = product.enhancedImageUri ?: product.imageUri
                     coil.compose.AsyncImage(
@@ -223,13 +225,29 @@ fun ProductCard(product: com.example.kalax.ui.product.ProductDraft) {
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-                Icon(Icons.Default.MoreVert, contentDescription = null, tint = Color(0xFF4A5D44), modifier = Modifier.align(Alignment.TopEnd).padding(8.dp))
+                Box(modifier = Modifier.align(Alignment.TopEnd)) {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = null, tint = MaterialTheme.colorScheme.onBackground)
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Delete") },
+                            onClick = {
+                                showMenu = false
+                                showDeleteDialog = true
+                            }
+                        )
+                    }
+                }
             }
             Column(modifier = Modifier.fillMaxWidth().weight(1f).padding(12.dp)) {
-                Text(product.name, color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1)
-                Text(product.category, color = Color(0xFF697A63), fontSize = 10.sp, maxLines = 1)
+                Text(product.name, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1)
+                Text(product.category, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp, maxLines = 1)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("₹${product.recommendedPrice}", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text("₹${product.recommendedPrice}", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 
                 Spacer(modifier = Modifier.weight(1f))
                 
@@ -245,7 +263,7 @@ fun ProductCard(product: com.example.kalax.ui.product.ProductDraft) {
                         Text(product.status, color = statusColor, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                     }
                     
-                    Text("${product.score}/100", color = Color(0xFF697A63), fontSize = 10.sp)
+                    Text("${product.score}/100", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
                 }
             }
         }

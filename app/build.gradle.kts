@@ -89,9 +89,9 @@ dependencies {
   implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 
   // Retrofit & Networking
-  implementation("com.squareup.retrofit2:retrofit:2.11.0")
-  implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-  implementation("com.squareup.okhttp3:okhttp:4.12.0")
+  implementation(libs.retrofit)
+  implementation(libs.converter.gson)
+  implementation(libs.okhttp3.logging.interceptor)
 
   // Coil for Images
   implementation("io.coil-kt:coil-compose:2.6.0")
@@ -99,6 +99,9 @@ dependencies {
   // ExecuTorch for Edge AI
   // Include the prebuilt AARs from your libs/ folder (e.g., executorch.aar, executorch-qnn.aar)
   implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
+
+  // AppCompat (for per-app language / backward compatibility)
+  implementation("androidx.appcompat:appcompat:1.6.1")
 
   // Room
   implementation(libs.androidx.room.runtime)
@@ -113,4 +116,7 @@ dependencies {
 
   // WorkManager
   implementation(libs.androidx.work.runtime.ktx)
+
+  // ML Kit Image Labeling
+  implementation("com.google.mlkit:image-labeling:17.0.8")
 }

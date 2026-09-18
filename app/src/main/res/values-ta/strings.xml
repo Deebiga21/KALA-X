@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KALA-X</string>
+    <string name="tagline">கைவினைப் பொருளிலிருந்து சந்தைக்கு</string>
+    <string name="welcome_back">மீண்டும் வருக,</string>
+    <string name="create_product">தயாரிப்பை உருவாக்கு</string>
+    <string name="my_catalog">என் பட்டியல்</string>
+    <string name="market_insights">சந்தை நுண்ணறிவு</string>
+    <string name="my_profile">என் சுயவிவரம்</string>
+    <string name="home">முகப்பு</string>
+    <string name="catalog">பட்டியல்</string>
+    <string name="insights">நுண்ணறிவு</string>
+    <string name="profile">சுயவிவரம்</string>
+    <string name="capture_your_craft">உங்கள் கைவினையை படம்பிடிக்கவும்</string>
+    <string name="describe_in_language">உங்கள் மொழியில் விவரிக்கவும்</string>
+    <string name="sell_with_confidence">நம்பிக்கையுடன் விற்கவும்</string>
+    <string name="get_started">தொடங்கவும்</string>
+    <string name="skip">தவிர்</string>
+    <string name="next">அடுத்து</string>
+    <string name="complete_registration">பதிவை முடிக்கவும்</string>
+    <string name="full_name">முழு பெயர்</string>
+    <string name="phone_or_email">தொலைபேசி அல்லது மின்னஞ்சல்</string>
+    <string name="password">கடவுச்சொல்</string>
+    <string name="craft_category">கைவினை வகை</string>
+    <string name="preferred_language">விருப்பமான மொழி</string>
+    <string name="publish">கடைக்கு வெளியிடு</string>
+    <string name="save_draft">வரைவை சேமி</string>
+    <string name="search_products">தயாரிப்புகளை தேடு...</string>
+    <string name="no_products">தயாரிப்புகள் இல்லை.</string>
+    <string name="all">அனைத்தும்</string>
+    <string name="drafts">வரைவுகள்</string>
+    <string name="published">வெளியிடப்பட்டவை</string>
+</resources>
