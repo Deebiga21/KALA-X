@@ -10,12 +10,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,15 +32,20 @@ import coil.compose.AsyncImage
 import com.example.kalax.ui.product.ProductViewModel
 import androidx.compose.ui.zIndex
 import androidx.compose.foundation.Canvas
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 
 val CreamBackground = Color(0xFFF9F7F3)
 val SageGreen = Color(0xFFE3E9DD)
-val SageGreenDark = Color(0xFFC7D3BC)
 val TextDark = Color(0xFF1E1C1A)
 val CardWhite = Color(0xFFFFFFFF)
 val BeigeNav = Color(0xFFF3EFE9)
 val BeigeNavActive = Color(0xFFE4DFD5)
+val TealChart = Color(0xFF3BA7A7)
 
 @Composable
 fun HomeScreen(
@@ -59,13 +65,13 @@ fun HomeScreen(
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawCircle(
                 color = SageGreen,
-                radius = size.width * 0.7f,
-                center = androidx.compose.ui.geometry.Offset(size.width * 0.2f, size.height * 0.1f)
+                radius = size.width * 0.8f,
+                center = androidx.compose.ui.geometry.Offset(size.width * 0.1f, size.height * 0.1f)
             )
             drawCircle(
                 color = SageGreen.copy(alpha = 0.5f),
-                radius = size.width * 0.5f,
-                center = androidx.compose.ui.geometry.Offset(size.width * 0.8f, size.height * 0.6f)
+                radius = size.width * 0.6f,
+                center = androidx.compose.ui.geometry.Offset(size.width * 0.9f, size.height * 0.7f)
             )
         }
         
@@ -141,77 +147,111 @@ fun HomeScreen(
             
             Spacer(modifier = Modifier.height(32.dp))
             
-            // Staggered Cards Graphic
+            // Dashboard Widgets Section
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(360.dp)
+                    .height(450.dp)
             ) {
-                // 1. SMART CATALOG
+                // Wavy Abstract Background behind cards
+                AsyncImage(
+                    model = "https://images.unsplash.com/photo-1574169208507-84376144848b?auto=format&fit=crop&w=800&q=80",
+                    contentDescription = "Abstract Waves",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(350.dp)
+                        .padding(horizontal = 16.dp)
+                        .clip(RoundedCornerShape(32.dp))
+                        .align(Alignment.TopCenter)
+                        .zIndex(0f)
+                )
+
+                // Dashed vertical connector line
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(2.dp)
+                        .align(Alignment.Center)
+                        .offset(x = 0.dp, y = 20.dp)
+                        .zIndex(1f)
+                ) {
+                    drawLine(
+                        color = Color.White.copy(alpha = 0.7f),
+                        start = androidx.compose.ui.geometry.Offset(size.width / 2, 0f),
+                        end = androidx.compose.ui.geometry.Offset(size.width / 2, size.height),
+                        strokeWidth = 3f,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+                    )
+                }
+
+                // 1. CATALOG OVERVIEW
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
-                        .offset(x = (-10).dp, y = 0.dp)
+                        .offset(x = (-10).dp, y = 30.dp)
+                        .zIndex(2f)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Card(
                             shape = RoundedCornerShape(24.dp),
-                            colors = CardDefaults.cardColors(containerColor = CardWhite),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            colors = CardDefaults.cardColors(containerColor = CardWhite.copy(alpha = 0.95f)),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                             modifier = Modifier.zIndex(1f).offset(x = 24.dp)
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(Icons.Outlined.GridView, contentDescription = null, tint = TextDark, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("SMART CATALOG", color = TextDark, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                Text("CATALOG OVERVIEW", color = TextDark, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
                         }
                         
                         AsyncImage(
-                            model = "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=300&q=80",
+                            model = "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=400&q=80",
                             contentDescription = "Shelf",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .width(140.dp)
-                                .height(90.dp)
-                                .clip(RoundedCornerShape(16.dp))
+                                .width(150.dp)
+                                .height(100.dp)
+                                .clip(RoundedCornerShape(20.dp))
+                                .border(2.dp, CardWhite, RoundedCornerShape(20.dp))
                         )
                     }
                 }
 
-                // 2. SMART PRICE
+                // 2. SMART PRICE CHART
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.Center)
                         .padding(horizontal = 32.dp)
-                        .offset(y = 10.dp)
+                        .offset(y = (-10).dp)
+                        .zIndex(2f)
                 ) {
-                    AsyncImage(
-                        model = "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=500&q=80",
-                        contentDescription = "Ledger",
-                        contentScale = ContentScale.Crop,
+                    Card(
+                        shape = RoundedCornerShape(24.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardWhite),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(110.dp)
-                            .padding(top = 24.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                    )
+                            .height(130.dp)
+                            .padding(top = 16.dp, bottom = 16.dp)
+                    ) {
+                        SmartPriceChart()
+                    }
                     
                     Card(
                         shape = RoundedCornerShape(24.dp),
                         colors = CardDefaults.cardColors(containerColor = CardWhite),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                        modifier = Modifier.align(Alignment.TopStart).offset(x = 24.dp, y = 0.dp)
+                        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
+                        modifier = Modifier.align(Alignment.BottomCenter).offset(y = 12.dp)
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("SMART PRICE", color = TextDark, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            Text("SMART PRICE", color = TextDark, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
                     }
                 }
@@ -220,33 +260,61 @@ fun HomeScreen(
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .offset(x = (-30).dp, y = 0.dp)
+                        .offset(x = (-10).dp, y = (-20).dp)
+                        .zIndex(2f)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Card(
                             shape = RoundedCornerShape(24.dp),
-                            colors = CardDefaults.cardColors(containerColor = CardWhite),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                            modifier = Modifier.zIndex(1f).offset(x = 24.dp)
+                            colors = CardDefaults.cardColors(containerColor = CardWhite.copy(alpha = 0.95f)),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                            modifier = Modifier.zIndex(1f).offset(x = 16.dp)
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(Icons.Outlined.Home, contentDescription = null, tint = TextDark, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("MARKET READY", color = TextDark, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                Icon(Icons.Outlined.Storefront, contentDescription = null, tint = TextDark, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text("MARKET READY", color = TextDark, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
                         }
                         
-                        AsyncImage(
-                            model = "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=300&q=80",
-                            contentDescription = "Market",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(100.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                        )
+                        Card(
+                            shape = RoundedCornerShape(24.dp),
+                            colors = CardDefaults.cardColors(containerColor = CardWhite),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                            modifier = Modifier.size(110.dp)
+                        ) {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        CircularProgressIndicator(
+                                            progress = { 0.95f },
+                                            modifier = Modifier.size(60.dp),
+                                            color = TealChart,
+                                            trackColor = SageGreen,
+                                            strokeWidth = 6.dp
+                                        )
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Text("95%", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TealChart)
+                                            Text("READY", fontSize = 8.sp, color = TextDark.copy(alpha=0.6f))
+                                        }
+                                    }
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .offset(x = (-4).dp, y = 4.dp)
+                                        .size(24.dp)
+                                        .background(SageGreen, CircleShape)
+                                        .border(2.dp, CardWhite, CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.Check, contentDescription = null, tint = TextDark, modifier = Modifier.size(14.dp))
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -256,7 +324,7 @@ fun HomeScreen(
             Card(
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = CardWhite),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
@@ -266,14 +334,14 @@ fun HomeScreen(
                     modifier = Modifier.padding(20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
+                    AsyncImage(
+                        model = "https://images.unsplash.com/photo-1516961642265-531546e84af2?auto=format&fit=crop&w=200&q=80",
+                        contentDescription = "Camera",
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(56.dp)
-                            .background(SageGreen, RoundedCornerShape(16.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Outlined.GridView, contentDescription = null, tint = TextDark, modifier = Modifier.size(28.dp))
-                    }
+                            .size(64.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                    )
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text("CREATE NEW LISTING:", color = TextDark, fontWeight = FontWeight.Bold, fontSize = 14.sp)
@@ -291,6 +359,61 @@ fun HomeScreen(
             currentRoute = currentRoute,
             onNavigate = onNavigate
         )
+    }
+}
+
+@Composable
+fun SmartPriceChart() {
+    Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val width = size.width
+            val height = size.height
+            
+            // Draw gradient area
+            val path = Path().apply {
+                moveTo(0f, height)
+                lineTo(0f, height * 0.6f)
+                lineTo(width * 0.2f, height * 0.4f)
+                lineTo(width * 0.4f, height * 0.7f)
+                lineTo(width * 0.6f, height * 0.3f)
+                lineTo(width * 0.8f, height * 0.6f)
+                lineTo(width, height * 0.2f)
+                lineTo(width, height)
+                close()
+            }
+            
+            drawPath(
+                path = path,
+                brush = Brush.verticalGradient(
+                    colors = listOf(TealChart.copy(alpha = 0.6f), TealChart.copy(alpha = 0.1f)),
+                    startY = 0f,
+                    endY = height
+                )
+            )
+            
+            // Draw line
+            val linePath = Path().apply {
+                moveTo(0f, height * 0.6f)
+                lineTo(width * 0.2f, height * 0.4f)
+                lineTo(width * 0.4f, height * 0.7f)
+                lineTo(width * 0.6f, height * 0.3f)
+                lineTo(width * 0.8f, height * 0.6f)
+                lineTo(width, height * 0.2f)
+            }
+            
+            drawPath(
+                path = linePath,
+                color = TealChart,
+                style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
+            )
+            
+            // Draw points
+            drawCircle(color = TealChart, radius = 6.dp.toPx(), center = androidx.compose.ui.geometry.Offset(width * 0.6f, height * 0.3f))
+            drawCircle(color = Color.White, radius = 3.dp.toPx(), center = androidx.compose.ui.geometry.Offset(width * 0.6f, height * 0.3f))
+            
+            drawCircle(color = TealChart, radius = 6.dp.toPx(), center = androidx.compose.ui.geometry.Offset(width, height * 0.2f))
+            drawCircle(color = Color.White, radius = 3.dp.toPx(), center = androidx.compose.ui.geometry.Offset(width, height * 0.2f))
+        }
     }
 }
 
