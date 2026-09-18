@@ -3,6 +3,7 @@ package com.example.kalax
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -40,7 +41,10 @@ fun MainNavigation() {
   }
 
   if (backStack.isEmpty()) {
-      backStack.add(Splash)
+      LaunchedEffect(Unit) {
+          backStack.add(Splash)
+      }
+      return // Wait for LaunchedEffect to seed the backstack
   }
 
   val activity = context as? android.app.Activity ?: (context as? android.content.ContextWrapper)?.baseContext as? android.app.Activity

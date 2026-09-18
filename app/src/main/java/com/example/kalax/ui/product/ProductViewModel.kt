@@ -82,8 +82,12 @@ class ProductViewModel(
 
     fun loadCatalog() {
         viewModelScope.launch {
-            container.database.catalogDao().getAllCatalogItems().collect { list ->
-                _catalog.value = list.map { it.toDraft() }
+            try {
+                container.database.catalogDao().getAllCatalogItems().collect { list ->
+                    _catalog.value = list.map { it.toDraft() }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
