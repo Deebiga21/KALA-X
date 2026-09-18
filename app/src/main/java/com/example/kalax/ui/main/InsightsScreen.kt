@@ -49,6 +49,8 @@ fun InsightsScreen(
                 Text("Market Insights", color = MaterialTheme.colorScheme.onBackground, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             }
             Text("Know what buyers want. Price with confidence.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text("* Reference / Dummy Market Data", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
             
             Spacer(modifier = Modifier.height(24.dp))
             

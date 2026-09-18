@@ -42,7 +42,8 @@ fun CatalogScreen(
     var selectedFilter by remember { mutableStateOf("All") }
 
     val filteredCatalog = catalog.filter {
-        (selectedFilter == "All" || it.status == selectedFilter) &&
+        val targetStatus = if (selectedFilter == "Drafts") "Draft" else selectedFilter
+        (selectedFilter == "All" || it.status == targetStatus) &&
         (it.name.contains(searchQuery, ignoreCase = true))
     }
 
@@ -124,7 +125,18 @@ fun CatalogScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     items(filteredCatalog) { product ->
-                        ProductCard(product)
+                        CatalogProductCard(
+                            product = product,
+                            onClick = {
+                                if (product.status == "Published") {
+                                    // Navigate to details
+                                    onNavigate("ProductDetail/${product.id}")
+                                }
+                            },
+                            onDelete = {
+                                viewModel.deleteProduct(product.id.toString())
+                            }
+                        )
                     }
                     item { Spacer(modifier = Modifier.height(100.dp)) } // padding for bottom nav
                 }
@@ -165,9 +177,39 @@ fun StatBox(modifier: Modifier, value: String, label: String) {
 }
 
 @Composable
-fun ProductCard(product: com.example.kalax.ui.product.ProductDraft) {
+fun CatalogProductCard(
+    product: com.example.kalax.ui.product.ProductDraft,
+    onClick: () -> Unit,
+    onDelete: () -> Unit
+) {
+    var showMenu by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Product") },
+            text = { Text("Are you sure you want to delete this product?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDelete()
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth().aspectRatio(0.75f),
+        modifier = Modifier.fillMaxWidth().aspectRatio(0.75f).clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.05f))
@@ -183,7 +225,23 @@ fun ProductCard(product: com.example.kalax.ui.product.ProductDraft) {
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-                Icon(Icons.Default.MoreVert, contentDescription = null, tint = MaterialTheme.colorScheme.onBackground, modifier = Modifier.align(Alignment.TopEnd).padding(8.dp))
+                Box(modifier = Modifier.align(Alignment.TopEnd)) {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = null, tint = MaterialTheme.colorScheme.onBackground)
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Delete") },
+                            onClick = {
+                                showMenu = false
+                                showDeleteDialog = true
+                            }
+                        )
+                    }
+                }
             }
             Column(modifier = Modifier.fillMaxWidth().weight(1f).padding(12.dp)) {
                 Text(product.name, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1)

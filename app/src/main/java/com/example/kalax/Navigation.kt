@@ -15,6 +15,7 @@ import com.example.kalax.ui.main.MainScreen
 import com.example.kalax.ui.main.CatalogScreen
 import com.example.kalax.ui.main.InsightsScreen
 import com.example.kalax.ui.main.ProfileScreen
+import com.example.kalax.ui.main.ProductDetailScreen
 import com.example.kalax.ui.home.HomeScreen
 import com.example.kalax.ui.product.CaptureScreen
 import com.example.kalax.ui.product.*
@@ -31,12 +32,19 @@ fun MainNavigation() {
   val productViewModel: ProductViewModel = viewModel(factory = ProductViewModel.provideFactory(app))
 
   val onNavigate: (String) -> Unit = { route ->
-    backStack.clear()
-    when (route) {
-      "Home" -> backStack.add(Home)
-      "Catalog" -> backStack.add(Catalog)
-      "Insights" -> backStack.add(Insights)
-      "Profile" -> backStack.add(Profile)
+    if (route.startsWith("ProductDetail/")) {
+        val id = route.removePrefix("ProductDetail/")
+        backStack.add(ProductDetail(id))
+    } else if (route == "CreateProduct") {
+        backStack.add(Capture)
+    } else {
+        backStack.clear()
+        when (route) {
+          "Home" -> backStack.add(Home)
+          "Catalog" -> backStack.add(Catalog)
+          "Insights" -> backStack.add(Insights)
+          "Profile" -> backStack.add(Profile)
+        }
     }
   }
 
@@ -175,6 +183,13 @@ fun MainNavigation() {
                   backStack.add(Catalog)
               }
           )
+        }
+        entry<ProductDetail> { args ->
+            ProductDetailScreen(
+                productId = args.productId,
+                viewModel = productViewModel,
+                onBack = { backStack.removeLastOrNull() }
+            )
         }
       },
   )

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.kalax.KalaXApplication
 import com.example.kalax.data.local.entity.CatalogItem
 import com.example.kalax.di.AppContainer
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,6 +18,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
+
+sealed class PipelineState {
+    object Idle : PipelineState()
+    object Capturing : PipelineState()
+    object Enhancing : PipelineState()
+    object Transcribing : PipelineState()
+    object Generating : PipelineState()
+    object Pricing : PipelineState()
+    object Reviewing : PipelineState()
+}
 
 data class ProductDraft(
     val id: String = UUID.randomUUID().toString(),
@@ -71,13 +82,25 @@ class ProductViewModel(
     private val _catalog = MutableStateFlow<List<ProductDraft>>(emptyList())
     val catalog: StateFlow<List<ProductDraft>> = _catalog.asStateFlow()
 
-    private val _pipelineState = MutableStateFlow<String>("Idle")
-    val pipelineState: StateFlow<String> = _pipelineState.asStateFlow()
+    private val _pipelineState = MutableStateFlow<PipelineState>(PipelineState.Idle)
+    val pipelineState: StateFlow<PipelineState> = _pipelineState.asStateFlow()
+
+    private val _profile = MutableStateFlow<com.example.kalax.data.local.entity.ArtisanProfile?>(null)
+    val profile: StateFlow<com.example.kalax.data.local.entity.ArtisanProfile?> = _profile.asStateFlow()
 
     private var currentSessionId: Long? = null
 
     init {
         loadCatalog()
+        loadProfile()
+    }
+
+    private fun loadProfile() {
+        viewModelScope.launch {
+            container.database.profileDao().getProfile().collect { p ->
+                _profile.value = p
+            }
+        }
     }
 
     fun loadCatalog() {
@@ -149,57 +172,84 @@ class ProductViewModel(
     
     fun enhanceImage() {
         viewModelScope.launch {
-            _pipelineState.value = "ProcessingImage"
+            _pipelineState.value = PipelineState.Enhancing
             val uriStr = _draft.value.imageUri ?: return@launch
             val bitmap = BitmapFactory.decodeFile(uriStr)
+            
+            delay(2000) // Simulated background removal delay
+            
             val processed = container.pipelineRepository.processImage(currentSessionId ?: 0, bitmap, uriStr)
             _draft.update { it.copy(enhancedImageUri = processed) }
             container.pipelineRepository.updateProduct(getCurrentCatalogItem())
-            _pipelineState.value = "ImageProcessed"
+            _pipelineState.value = PipelineState.Idle
         }
     }
 
-    fun processVoice(language: String) {
+    fun processVoiceAndGenerate(language: String) {
         viewModelScope.launch {
-            _pipelineState.value = "TranscribingAudio"
+            _pipelineState.value = PipelineState.Transcribing
+            delay(1500) // Simulate speech-to-text delay
             val transcribed = container.pipelineRepository.transcribeAudio(currentSessionId ?: 0, null)
             _draft.update { it.copy(transcribedText = transcribed) }
             container.pipelineRepository.updateProduct(getCurrentCatalogItem())
-            _pipelineState.value = "AudioTranscribed"
+            
+            _pipelineState.value = PipelineState.Generating
+            delay(1500) // Simulate generation delay
+            container.pipelineRepository.generateCatalog(currentSessionId ?: 0, _draft.value.transcribedText)
+            syncLocalDraft()
+            
+            _pipelineState.value = PipelineState.Idle
+        }
+    }
+    
+    fun processVoice(language: String) {
+        viewModelScope.launch {
+            _pipelineState.value = PipelineState.Transcribing
+            delay(1500) // Simulate speech-to-text delay
+            val transcribed = container.pipelineRepository.transcribeAudio(currentSessionId ?: 0, null)
+            _draft.update { it.copy(transcribedText = transcribed) }
+            container.pipelineRepository.updateProduct(getCurrentCatalogItem())
+            _pipelineState.value = PipelineState.Idle
         }
     }
 
     fun generateCatalog() {
         viewModelScope.launch {
-            _pipelineState.value = "GeneratingCatalog"
+            _pipelineState.value = PipelineState.Generating
+            delay(1500) // Simulate AI generation delay
             container.pipelineRepository.generateCatalog(currentSessionId ?: 0, _draft.value.transcribedText)
             syncLocalDraft()
-            _pipelineState.value = "CatalogGenerated"
+            _pipelineState.value = PipelineState.Idle
         }
     }
 
     fun calculatePrice() {
         viewModelScope.launch {
+            _pipelineState.value = PipelineState.Pricing
             val d = _draft.value
             val price = container.pricingEngine.calculatePrice(
                 d.rawCost.toDouble(), d.labourCost.toDouble(), d.packagingCost.toDouble(), d.otherCost.toDouble()
             )
             _draft.update { it.copy(recommendedPrice = price.toInt()) }
             container.pipelineRepository.updateProduct(getCurrentCatalogItem())
+            _pipelineState.value = PipelineState.Idle
         }
     }
     
     fun getCommerceScore() {
         viewModelScope.launch {
+            _pipelineState.value = PipelineState.Reviewing
             val score = container.readinessEngine.calculateScore(getCurrentCatalogItem())
             _draft.update { it.copy(score = score) }
             container.pipelineRepository.updateProduct(getCurrentCatalogItem())
+            _pipelineState.value = PipelineState.Idle
         }
     }
 
     fun clearDraft() {
         currentSessionId = null
         _draft.value = ProductDraft()
+        _pipelineState.value = PipelineState.Idle
     }
 
     fun publishDraft() {
@@ -246,6 +296,14 @@ class ProductViewModel(
         }
     }
 
+    fun updateProfile(name: String, language: String) {
+        viewModelScope.launch {
+            val current = _profile.value ?: return@launch
+            val updated = current.copy(name = name, preferredLanguage = language)
+            container.database.profileDao().insertProfile(updated)
+        }
+    }
+
 
     fun saveDraft() {
         _draft.update { it.copy(status = "Draft") }
@@ -254,6 +312,13 @@ class ProductViewModel(
                 container.pipelineRepository.updateProduct(getCurrentCatalogItem())
             }
             clearDraft()
+        }
+    }
+
+    fun deleteProduct(id: String) {
+        viewModelScope.launch {
+            val dbId = id.toLongOrNull() ?: return@launch
+            container.database.catalogDao().deleteById(dbId)
         }
     }
 

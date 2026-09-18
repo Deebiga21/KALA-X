@@ -27,8 +27,8 @@ fun EnhanceScreen(
 ) {
     val draft by viewModel.draft.collectAsState()
     val pipelineState by viewModel.pipelineState.collectAsState()
-    val isDone = pipelineState == "ImageProcessed" || pipelineState == "TranscribingAudio" || pipelineState == "GeneratingCatalog" || pipelineState == "CatalogGenerated"
-    val isProcessing = pipelineState == "ProcessingImage"
+    val isDone = draft.enhancedImageUri != null && pipelineState !is PipelineState.Enhancing
+    val isProcessing = pipelineState is PipelineState.Enhancing
 
     val progress = when {
         isDone -> 1f

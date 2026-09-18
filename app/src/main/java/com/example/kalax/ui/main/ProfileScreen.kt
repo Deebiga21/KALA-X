@@ -47,10 +47,48 @@ fun ProfileScreen(
     val cardBg = MaterialTheme.colorScheme.surface
     val cyanGlow = MaterialTheme.colorScheme.primary
 
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val prefs = context.getSharedPreferences("kalax_prefs", android.content.Context.MODE_PRIVATE)
-    val artisanName = prefs.getString("artisan_name", "Lakshmi") ?: "Lakshmi"
-    val preferredLanguage = prefs.getString("preferred_language", "Tamil") ?: "Tamil"
+    val profileState by viewModel.profile.collectAsState()
+    val artisanName = profileState?.name ?: "Artisan"
+    val preferredLanguage = profileState?.preferredLanguage ?: "English"
+
+    var showEditDialog by remember { mutableStateOf(false) }
+    var editName by remember(artisanName) { mutableStateOf(artisanName) }
+    var editLanguage by remember(preferredLanguage) { mutableStateOf(preferredLanguage) }
+
+    if (showEditDialog) {
+        AlertDialog(
+            onDismissRequest = { showEditDialog = false },
+            title = { Text("Edit Profile") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = editName,
+                        onValueChange = { editName = it },
+                        label = { Text("Name") }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = editLanguage,
+                        onValueChange = { editLanguage = it },
+                        label = { Text("Preferred Language") }
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.updateProfile(editName, editLanguage)
+                    showEditDialog = false
+                }) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
@@ -97,7 +135,7 @@ fun ProfileScreen(
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
-                                onClick = { },
+                                onClick = { showEditDialog = true },
                                 modifier = Modifier.align(Alignment.End).height(36.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                                 shape = RoundedCornerShape(18.dp)

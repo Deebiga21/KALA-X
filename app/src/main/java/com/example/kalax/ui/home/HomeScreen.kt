@@ -54,9 +54,8 @@ fun HomeScreen(
         label = "bg_offset"
     )
 
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val prefs = context.getSharedPreferences("kalax_prefs", android.content.Context.MODE_PRIVATE)
-    val artisanName = prefs.getString("artisan_name", "Artisan") ?: "Artisan"
+    val profileState by viewModel.profile.collectAsState()
+    val artisanName = profileState?.name ?: "Artisan"
 
     Box(
         modifier = modifier
@@ -325,7 +324,7 @@ fun HomeScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     if (catalog.isNotEmpty()) {
-                        Text("“${catalog.last().name} published”", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp)
+                        Text("“${catalog.first().name} updated”", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp)
                     } else {
                         Text("“No recent activity.”", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                     }

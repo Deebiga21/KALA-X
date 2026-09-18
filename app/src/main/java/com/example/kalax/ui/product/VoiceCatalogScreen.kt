@@ -37,14 +37,17 @@ fun VoiceCatalogScreen(
 
     LaunchedEffect(pipelineState) {
         when (pipelineState) {
-            "ProcessingImage", "TranscribingAudio", "GeneratingCatalog" -> {
+            is PipelineState.Transcribing, is PipelineState.Generating -> {
                 localState = "processing"
                 state = "processing"
             }
-            "CatalogGenerated" -> {
-                localState = "done"
-                state = "done"
+            is PipelineState.Idle -> {
+                if (draft.name.isNotEmpty() || draft.description.isNotEmpty() || draft.transcribedText.isNotEmpty()) {
+                    localState = "done"
+                    state = "done"
+                }
             }
+            else -> {}
         }
     }
 
@@ -99,8 +102,7 @@ fun VoiceCatalogScreen(
                     onClick = {
                         state = "recording"
                         scope.launch {
-                            viewModel.processVoice(selectedLanguage)
-                            viewModel.generateCatalog()
+                            viewModel.processVoiceAndGenerate(selectedLanguage)
                         }
                     },
                     containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
