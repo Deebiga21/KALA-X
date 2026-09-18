@@ -39,9 +39,21 @@ fun MainNavigation() {
     }
   }
 
+  if (backStack.isEmpty()) {
+      backStack.add(Splash)
+  }
+
+  val activity = context as? android.app.Activity ?: (context as? android.content.ContextWrapper)?.baseContext as? android.app.Activity
+
   NavDisplay(
     backStack = backStack,
-    onBack = { backStack.removeLastOrNull() },
+    onBack = { 
+        if (backStack.size <= 1) {
+            activity?.finish()
+        } else {
+            backStack.removeLastOrNull()
+        }
+    },
     entryProvider =
       entryProvider {
         entry<Splash> {
