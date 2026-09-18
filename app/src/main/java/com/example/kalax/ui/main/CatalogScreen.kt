@@ -113,7 +113,46 @@ fun CatalogScreen(
 
             if (filteredCatalog.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Text("No products found.", color = Color(0xFF697A63))
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(
+                            modifier = Modifier
+                                .size(80.dp)
+                                .background(cardBg, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Outlined.Inventory2,
+                                contentDescription = null,
+                                tint = cyanGlow,
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "No products found",
+                            color = Color(0xFF4A5D44),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Your digital shelf is empty.\nLet's add your first handmade creation!",
+                            color = Color(0xFF697A63),
+                            fontSize = 14.sp,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Button(
+                            onClick = { onNavigate("CreateProduct") },
+                            colors = ButtonDefaults.buttonColors(containerColor = cyanGlow),
+                            shape = RoundedCornerShape(25.dp),
+                            modifier = Modifier.height(48.dp)
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = null, tint = Color(0xFF4A5D44))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Create Product", color = Color(0xFF4A5D44), fontWeight = FontWeight.Bold)
+                        }
+                    }
                 }
             } else {
                 LazyVerticalGrid(
