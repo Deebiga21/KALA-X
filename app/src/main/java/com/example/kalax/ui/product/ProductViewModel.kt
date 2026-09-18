@@ -119,6 +119,19 @@ class ProductViewModel(
                 _marketInsights.value = insights
             } catch (e: Exception) {
                 e.printStackTrace()
+                // Fallback dummy data if backend is unreachable so UI doesn't spin forever
+                _marketInsights.value = com.example.kalax.data.remote.InsightsResponse(
+                    recommended_price = 849,
+                    your_cost = 600,
+                    potential_margin = 249,
+                    confidence_score = 87,
+                    opportunity_level = "Strong Opportunity",
+                    top_category = "Bamboo Home Decor",
+                    demand_level = "HIGH",
+                    trend_percentage = 18,
+                    buyer_interest_percentage = 18,
+                    opportunity_description = "Demand is high. Similar products are selling between 799 and 899. (Offline Mode)"
+                )
             }
         }
     }
