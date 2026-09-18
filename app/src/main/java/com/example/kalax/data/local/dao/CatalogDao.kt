@@ -13,6 +13,27 @@ interface CatalogDao {
     @Query("SELECT * FROM catalog_item ORDER BY id DESC")
     fun getAllCatalogItems(): Flow<List<CatalogItem>>
 
+    @Query("SELECT * FROM catalog_item WHERE status = :status ORDER BY id DESC")
+    fun getByStatus(status: String): Flow<List<CatalogItem>>
+
+    @Query("SELECT * FROM catalog_item WHERE id = :id")
+    suspend fun getById(id: Long): CatalogItem?
+
+    @Query("UPDATE catalog_item SET status = :status WHERE id = :id")
+    suspend fun updateStatus(id: Long, status: String): Int
+
+    @Query("SELECT COUNT(*) FROM catalog_item WHERE status = 'Draft'")
+    fun getDraftCount(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM catalog_item WHERE status = 'Published'")
+    fun getPublishedCount(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM catalog_item")
+    fun getTotalCount(): Flow<Int>
+
+    @Query("DELETE FROM catalog_item WHERE id = :id")
+    suspend fun deleteById(id: Long): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCatalogItem(item: CatalogItem): Long
     

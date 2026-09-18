@@ -210,16 +210,38 @@ class ProductViewModel(
 
     fun createProfile(name: String, emailOrPhone: String, craftType: String, language: String) {
         viewModelScope.launch {
+            val isEmail = emailOrPhone.contains("@")
             val profile = com.example.kalax.data.local.entity.ArtisanProfile(
                 id = "default_artisan",
                 name = name,
                 craftType = craftType,
                 baseHourlyLaborRate = 50.0, // Default
-                standardPackagingCost = 20.0 // Default
+                standardPackagingCost = 20.0, // Default
+                phone = if (!isEmail) emailOrPhone else "",
+                email = if (isEmail) emailOrPhone else "",
+                preferredLanguage = language
             )
             container.database.profileDao().insertProfile(profile)
         }
     }
+
+    fun registerArtisan(name: String, craftType: String, emailOrPhone: String = "", language: String = "English") {
+        viewModelScope.launch {
+            val isEmail = emailOrPhone.contains("@")
+            val profile = com.example.kalax.data.local.entity.ArtisanProfile(
+                id = "default_artisan",
+                name = name,
+                craftType = craftType,
+                baseHourlyLaborRate = 50.0,
+                standardPackagingCost = 20.0,
+                phone = if (!isEmail) emailOrPhone else "",
+                email = if (isEmail) emailOrPhone else "",
+                preferredLanguage = language
+            )
+            container.database.profileDao().insertProfile(profile)
+        }
+    }
+
 
     fun saveDraft() {
         _draft.update { it.copy(status = "Draft") }

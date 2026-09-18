@@ -10,5 +10,8 @@ data class ArtisanProfile(
     val name: String,
     val craftType: String, // e.g., Terracotta, Handloom
     val baseHourlyLaborRate: Double,
-    val standardPackagingCost: Double
+    val standardPackagingCost: Double,
+    val phone: String = "",
+    val email: String = "",
+    val preferredLanguage: String = "English"
 )
