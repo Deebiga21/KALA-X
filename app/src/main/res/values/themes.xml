@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.KALAX" parent="Theme.AppCompat.Light.NoActionBar" />
+    <style name="Theme.KALAX" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Transparent system bars for true edge-to-edge -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <!-- Light status bar icons on light background -->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
 </resources>
