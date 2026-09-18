@@ -155,7 +155,7 @@ fun HomeScreen(
             ) {
                 // Wavy Abstract Background behind cards
                 AsyncImage(
-                    model = "https://images.unsplash.com/photo-1574169208507-84376144848b?auto=format&fit=crop&w=800&q=80",
+                    model = "https://images.unsplash.com/photo-1615800098779-1be32e60cca3?auto=format&fit=crop&w=800&q=80",
                     contentDescription = "Abstract Waves",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
