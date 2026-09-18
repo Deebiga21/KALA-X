@@ -100,6 +100,9 @@ dependencies {
   // Include the prebuilt AARs from your libs/ folder (e.g., executorch.aar, executorch-qnn.aar)
   implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
 
+  // AppCompat (for per-app language / backward compatibility)
+  implementation("androidx.appcompat:appcompat:1.6.1")
+
   // Room
   implementation(libs.androidx.room.runtime)
   implementation(libs.androidx.room.ktx)
