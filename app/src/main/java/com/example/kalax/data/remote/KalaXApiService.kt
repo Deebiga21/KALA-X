@@ -51,6 +51,8 @@ fun ProductResponse.toCatalogItem(): CatalogItem {
 
 data class VoiceRequest(val text: String?, val audioUri: String?)
 
+data class AnalyzeImageRequest(val labels: String)
+
 interface KalaXApiService {
     @POST("/api/products")
     suspend fun createProduct(): ProductResponse
@@ -60,7 +62,7 @@ interface KalaXApiService {
     suspend fun uploadImage(@Path("id") id: Long, @Part image: MultipartBody.Part): ProductResponse
 
     @POST("/api/products/{id}/analyze-image")
-    suspend fun analyzeImage(@Path("id") id: Long): ProductResponse
+    suspend fun analyzeImage(@Path("id") id: Long, @Body request: AnalyzeImageRequest): ProductResponse
 
     @POST("/api/products/{id}/enhance-image")
     suspend fun enhanceImage(@Path("id") id: Long): ProductResponse

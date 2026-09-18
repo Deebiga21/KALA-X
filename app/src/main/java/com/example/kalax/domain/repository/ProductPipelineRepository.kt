@@ -1,5 +1,10 @@
 package com.example.kalax.domain.repository
 
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.label.ImageLabeling
+import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
+import com.google.android.gms.tasks.Tasks
+import com.example.kalax.data.remote.AnalyzeImageRequest
 import android.graphics.Bitmap
 import android.net.Uri
 import com.example.kalax.ai.llm.CatalogInferenceEngine
@@ -60,12 +65,26 @@ class ProductPipelineRepository(
     // Step 2: Process Image
     suspend fun processImage(productId: Long, rawBitmap: Bitmap?, rawUri: String): String {
         try {
+            var labels = ""
+            if (rawBitmap != null) {
+                val image = InputImage.fromBitmap(rawBitmap, 0)
+                val labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
+                val labelsList = Tasks.await(labeler.process(image))
+                labels = labelsList.joinToString(",") { it.text }
+            }
+
             val file = File(rawUri)
             if (file.exists()) {
                 val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
                 val multipart = MultipartBody.Part.createFormData("image", file.name, requestBody)
                 val response = apiService.uploadImage(productId, multipart)
                 catalogDao.insertCatalogItem(response.toCatalogItem())
+
+                // analyze image with labels
+                if (labels.isNotEmpty()) {
+                    val analyzed = apiService.analyzeImage(productId, AnalyzeImageRequest(labels = labels))
+                    catalogDao.insertCatalogItem(analyzed.toCatalogItem())
+                }
                 
                 val enhanced = apiService.enhanceImage(productId)
                 catalogDao.insertCatalogItem(enhanced.toCatalogItem())

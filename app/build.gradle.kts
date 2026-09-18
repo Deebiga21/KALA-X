@@ -116,4 +116,7 @@ dependencies {
 
   // WorkManager
   implementation(libs.androidx.work.runtime.ktx)
+
+  // ML Kit Image Labeling
+  implementation("com.google.mlkit:image-labeling:17.0.8")
 }

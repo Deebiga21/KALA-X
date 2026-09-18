@@ -212,6 +212,16 @@ class ProductViewModel(
         }
     }
 
+    fun processSpeechText(text: String) {
+        viewModelScope.launch {
+            _draft.update { it.copy(transcribedText = text) }
+            _pipelineState.value = PipelineState.Generating
+            container.pipelineRepository.generateCatalog(currentSessionId ?: 0, text)
+            syncLocalDraft()
+            _pipelineState.value = PipelineState.Idle
+        }
+    }
+
     fun generateCatalog() {
         viewModelScope.launch {
             _pipelineState.value = PipelineState.Generating

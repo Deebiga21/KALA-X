@@ -61,6 +61,24 @@ def upload_image(id: int, file: UploadFile = File(...), db: Session = Depends(ge
     db.refresh(product)
     return product
 
+class AnalyzeRequest(schemas.BaseModel):
+    labels: str
+
+@app.post("/api/products/{id}/analyze-image", response_model=schemas.ProductResponse)
+def analyze_image(id: int, req: AnalyzeRequest, db: Session = Depends(get_db)):
+    product = db.query(models.Product).filter(models.Product.id == id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+        
+    # Process image with labels
+    vision_res = vision_service.process_image("", product.description or "", req.labels)
+    if vision_res.get("material"):
+        product.material = vision_res["material"]
+        
+    db.commit()
+    db.refresh(product)
+    return product
+
 @app.post("/api/products/{id}/voice", response_model=schemas.ProductResponse)
 def upload_voice(id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
     product = db.query(models.Product).filter(models.Product.id == id).first()

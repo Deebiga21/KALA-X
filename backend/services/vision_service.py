@@ -1,11 +1,12 @@
-def process_image(filepath: str, description: str) -> dict:
-    # Dummy deterministic fallback based on description
+def process_image(filepath: str, description: str, labels: str = "") -> dict:
+    # Dummy deterministic fallback based on description and labels
     material = "Unknown"
-    if "bamboo" in description.lower():
+    text_to_check = (description + " " + labels).lower()
+    if "bamboo" in text_to_check:
         material = "Bamboo"
-    elif "wood" in description.lower():
+    elif "wood" in text_to_check:
         material = "Wood"
-    elif "clay" in description.lower():
+    elif "clay" in text_to_check:
         material = "Clay"
         
     return {"material": material}

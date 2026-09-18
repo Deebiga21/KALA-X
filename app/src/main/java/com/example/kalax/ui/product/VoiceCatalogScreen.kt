@@ -18,6 +18,20 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+import android.app.Activity
+import android.content.Intent
+import android.speech.RecognizerIntent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+
+fun selectedLanguageLocale(lang: String): String {
+    return when(lang) {
+        "Tamil" -> "ta-IN"
+        "Hindi" -> "hi-IN"
+        else -> "en-US"
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VoiceCatalogScreen(
@@ -34,6 +48,34 @@ fun VoiceCatalogScreen(
     var selectedLanguage by remember { mutableStateOf("English") }
     
     val scope = rememberCoroutineScope()
+
+    val speechLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data
+            val matches = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            val spokenText = matches?.get(0) ?: ""
+            if (spokenText.isNotEmpty()) {
+                state = "processing"
+                viewModel.processSpeechText(spokenText)
+            } else {
+                state = "idle"
+            }
+        } else {
+            state = "idle"
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, selectedLanguageLocale(selectedLanguage))
+            }
+            speechLauncher.launch(intent)
+        } else {
+            state = "idle"
+        }
+    }
 
     LaunchedEffect(pipelineState) {
         when (pipelineState) {
@@ -101,9 +143,7 @@ fun VoiceCatalogScreen(
                 FloatingActionButton(
                     onClick = {
                         state = "recording"
-                        scope.launch {
-                            viewModel.processVoiceAndGenerate(selectedLanguage)
-                        }
+                        permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
                     },
                     containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                     contentColor = MaterialTheme.colorScheme.primary,
