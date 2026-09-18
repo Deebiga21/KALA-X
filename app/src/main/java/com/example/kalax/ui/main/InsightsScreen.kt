@@ -212,7 +212,7 @@ fun InsightsScreen(
                             )
                             Spacer(modifier = Modifier.height(24.dp))
                             OutlinedButton(
-                                onClick = { },
+                                onClick = { onNavigate("CreateProduct") },
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(50),
                                 border = BorderStroke(1.dp, TextDarkGreen.copy(alpha = 0.5f)),
