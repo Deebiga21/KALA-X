@@ -26,10 +26,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 import android.app.Activity
+import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import java.io.File
 
 fun selectedLanguageLocale(lang: String): String {
     return when(lang) {
@@ -247,11 +253,13 @@ fun VoiceCatalogScreen(
 
             } else if (state == "processing") {
                 // ─── Real-Time AI Pipeline Progress ──────────────────────
+                val context = LocalContext.current
                 AiProcessingView(
                     currentStep = currentStep,
                     totalSteps = aiPipelineSteps.size,
                     elapsedSeconds = elapsedSeconds,
                     isStuck = isStuck,
+                    context = context,
                     onCancel = { cancelProcessing() }
                 )
 
@@ -348,6 +356,7 @@ fun AiProcessingView(
     totalSteps: Int,
     elapsedSeconds: Int,
     isStuck: Boolean,
+    context: Context,
     onCancel: () -> Unit
 ) {
     val progress = (currentStep + 1).toFloat() / totalSteps.toFloat()
@@ -356,6 +365,31 @@ fun AiProcessingView(
         animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
         label = "progress"
     )
+
+    // Hardware stats
+    var currentTemp by remember { mutableFloatStateOf(0f) }
+    var ramUsageGb by remember { mutableFloatStateOf(0f) }
+    var totalRamGb by remember { mutableFloatStateOf(0f) }
+    
+    // Poll hardware metrics
+    LaunchedEffect(elapsedSeconds) {
+        // Temperature (from BatteryManager as a reliable proxy on most devices)
+        val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val tempValue = intent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) ?: 0
+        currentTemp = tempValue / 10f
+        
+        // RAM Usage
+        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val memoryInfo = ActivityManager.MemoryInfo()
+        activityManager.getMemoryInfo(memoryInfo)
+        
+        val totalBytes = memoryInfo.totalMem
+        val availBytes = memoryInfo.availMem
+        val usedBytes = totalBytes - availBytes
+        
+        ramUsageGb = usedBytes / (1024f * 1024f * 1024f)
+        totalRamGb = totalBytes / (1024f * 1024f * 1024f)
+    }
 
     // Pulsing dot animation
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
@@ -385,12 +419,54 @@ fun AiProcessingView(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "${elapsedSeconds}s elapsed",
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // Stats Row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Time
+                Text(
+                    text = "⏱ ${elapsedSeconds}s",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                Text(
+                    text = " • ",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha=0.3f),
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+                
+                // Temp
+                val tempColor = when {
+                    currentTemp > 42f -> Color(0xFFE53935)
+                    currentTemp > 38f -> Color(0xFFF59E0B)
+                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                }
+                Text(
+                    text = "🌡 %.1f°C".format(currentTemp),
+                    fontSize = 12.sp,
+                    color = tempColor
+                )
+                
+                Text(
+                    text = " • ",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha=0.3f),
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+                
+                // RAM
+                Text(
+                    text = "🧠 %.1f/%.1f GB RAM".format(ramUsageGb, totalRamGb),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
