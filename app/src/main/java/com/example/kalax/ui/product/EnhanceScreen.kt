@@ -62,39 +62,24 @@ fun EnhanceScreen(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Before", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
-                Text("After", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                // Original Image
-                Box(modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
-                    if (draft.imageUri != null) {
-                        AsyncImage(
-                            model = java.io.File(draft.imageUri!!),
-                            contentDescription = "Original",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                }
+            com.example.kalax.ui.components.RefineFrame(
+                status = if (isDone) "done" else "working",
+                sweep = !isDone,
+                showStatus = true,
+                radius = 16,
+                aspectRatio = 4f/3f,
+                onRetry = { viewModel.enhanceImage() }
+            ) {
+                // If done, show enhanced image, else show original being swept over
+                val currentImageUri = if (isDone && draft.enhancedImageUri != null) draft.enhancedImageUri else draft.imageUri
                 
-                // Enhanced Image
-                Box(modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
-                    if (isDone && draft.enhancedImageUri != null) {
-                        AsyncImage(
-                            model = java.io.File(draft.enhancedImageUri!!),
-                            contentDescription = "Enhanced",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else if (!isDone) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                        }
-                    }
+                if (currentImageUri != null) {
+                    AsyncImage(
+                        model = java.io.File(currentImageUri),
+                        contentDescription = "Enhancement Preview",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
 
