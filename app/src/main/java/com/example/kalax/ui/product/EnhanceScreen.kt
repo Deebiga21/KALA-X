@@ -28,12 +28,23 @@ fun EnhanceScreen(
 ) {
     val draft by viewModel.draft.collectAsState()
     val pipelineState by viewModel.pipelineState.collectAsState()
-    val isDone = draft.enhancedImageUri != null && draft.enhancedImageUri != draft.imageUri && pipelineState !is PipelineState.Enhancing
     val isProcessing = pipelineState is PipelineState.Enhancing
+    val isDone = draft.enhancedImageUri != null && draft.enhancedImageUri != draft.imageUri && !isProcessing
 
     // Real-time stage and progress from the offline engine
     val currentStage by viewModel.enhancementStage.collectAsState()
     val engineProgress by viewModel.enhancementProgress.collectAsState()
+
+    // Map engine stage to RefineFrame status
+    val refineStatus = when {
+        isDone -> "complete"
+        currentStage == EnhancementStage.DETECTING -> "queued"
+        currentStage == EnhancementStage.SEGMENTING -> "generating"
+        currentStage == EnhancementStage.LIGHTING -> "refining"
+        currentStage == EnhancementStage.COMPOSITING -> "refining"
+        isProcessing -> "generating"
+        else -> if (isDone) "complete" else "queued"
+    }
 
     // Derive which steps are complete based on the real engine stage
     val stageIndex = when (currentStage) {
@@ -77,13 +88,10 @@ fun EnhanceScreen(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // RefineFrame with sweep animation synced to real processing
+            // RefineFrame — fully synced to real engine stages
             com.example.kalax.ui.components.RefineFrame(
-                status = when {
-                    isDone -> "done"
-                    isProcessing -> "working"
-                    else -> "working"
-                },
+                status = refineStatus,
+                progress = engineProgress,
                 sweep = isProcessing,
                 showStatus = true,
                 radius = 16,
@@ -104,7 +112,7 @@ fun EnhanceScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Real-time progress bar synced to engine
+            // Real-time progress bar below the frame
             if (isProcessing) {
                 LinearProgressIndicator(
                     progress = { engineProgress },
@@ -115,6 +123,20 @@ fun EnhanceScreen(
                     color = MaterialTheme.colorScheme.primary,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(
+                        text = currentStage?.label ?: "Processing...",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "${(engineProgress * 100).toInt()}%",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
@@ -193,11 +215,7 @@ fun EnhancementProgressItem(text: String, description: String?, isComplete: Bool
                 fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal
             )
             if (description != null) {
-                Text(
-                    description,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 11.sp
-                )
+                Text(description, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
             }
         }
     }
