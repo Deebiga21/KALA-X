@@ -218,38 +218,43 @@ fun VoiceCatalogScreen(
             modifier = Modifier.fillMaxWidth().padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (state == "idle") {
-                FloatingActionButton(
-                    onClick = {
+            if (state == "idle" || state == "recording") {
+                // Recording elapsed time tracking
+                var recordingElapsedMs by remember { mutableLongStateOf(0L) }
+                
+                LaunchedEffect(state) {
+                    if (state == "recording") {
+                        recordingElapsedMs = 0L
+                        while (true) {
+                            delay(100)
+                            recordingElapsedMs += 100
+                        }
+                    }
+                }
+
+                com.example.kalax.ui.components.VoicePill(
+                    isRecording = state == "recording",
+                    elapsedMs = recordingElapsedMs,
+                    onStart = {
                         state = "recording"
                         permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
                     },
-                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                    contentColor = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(100.dp),
-                    shape = RoundedCornerShape(50.dp)
-                ) {
-                    Icon(Icons.Outlined.Mic, contentDescription = null, modifier = Modifier.size(48.dp))
-                }
-                Spacer(modifier = Modifier.height(32.dp))
-                Text("Tap to start recording", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
+                    onStop = { reason ->
+                        if (reason == "cancelled") {
+                            state = "idle"
+                        }
+                    },
+                    accentColor = MaterialTheme.colorScheme.onBackground,
+                    iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    background = MaterialTheme.colorScheme.surfaceVariant
+                )
                 
-                Spacer(modifier = Modifier.height(24.dp))
-                TextButton(onClick = { state = "text_entry" }) {
-                    Text("Or type manually", color = MaterialTheme.colorScheme.primary)
+                if (state == "idle") {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    TextButton(onClick = { state = "text_entry" }) {
+                        Text("Or type manually", color = MaterialTheme.colorScheme.primary)
+                    }
                 }
-            } else if (state == "recording") {
-                FloatingActionButton(
-                    onClick = { /* Stop handled implicitly in this demo flow */ },
-                    containerColor = Color.Red.copy(0.2f),
-                    contentColor = Color.Red,
-                    modifier = Modifier.size(100.dp),
-                    shape = RoundedCornerShape(50.dp)
-                ) {
-                    Icon(Icons.Outlined.Mic, contentDescription = null, modifier = Modifier.size(48.dp))
-                }
-                Spacer(modifier = Modifier.height(32.dp))
-                Text("Listening...", color = Color.Red)
 
             } else if (state == "processing") {
                 // ─── Real-Time AI Pipeline Progress ──────────────────────
