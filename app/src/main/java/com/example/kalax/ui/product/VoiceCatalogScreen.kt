@@ -422,21 +422,30 @@ fun AiProcessingView(
             Spacer(modifier = Modifier.height(8.dp))
             
             // Stats Row
-            Row(
+            @OptIn(ExperimentalLayoutApi::class)
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 // Time
+                val timeString = if (elapsedSeconds < 60) {
+                    "${elapsedSeconds}s"
+                } else {
+                    val mins = elapsedSeconds / 60
+                    val secs = elapsedSeconds % 60
+                    "${mins}m ${secs}s"
+                }
+                
                 Text(
-                    text = "⏱ ${elapsedSeconds}s",
-                    fontSize = 12.sp,
+                    text = "⏱ $timeString",
+                    fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
                 Text(
                     text = " • ",
-                    fontSize = 12.sp,
+                    fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha=0.3f),
                     modifier = Modifier.padding(horizontal = 4.dp)
                 )
@@ -449,21 +458,21 @@ fun AiProcessingView(
                 }
                 Text(
                     text = "🌡 %.1f°C".format(currentTemp),
-                    fontSize = 12.sp,
+                    fontSize = 11.sp,
                     color = tempColor
                 )
                 
                 Text(
                     text = " • ",
-                    fontSize = 12.sp,
+                    fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha=0.3f),
                     modifier = Modifier.padding(horizontal = 4.dp)
                 )
                 
                 // RAM
                 Text(
-                    text = "🧠 %.1f/%.1f GB RAM".format(ramUsageGb, totalRamGb),
-                    fontSize = 12.sp,
+                    text = "🧠 %.1f/%.1f GB".format(ramUsageGb, totalRamGb),
+                    fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
