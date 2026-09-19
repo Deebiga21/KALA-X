@@ -119,4 +119,7 @@ dependencies {
 
   // ML Kit Image Labeling
   implementation("com.google.mlkit:image-labeling:17.0.8")
+
+  // ML Kit Subject Segmentation (background removal via Google Play Services)
+  implementation("com.google.android.gms:play-services-mlkit-subject-segmentation:16.0.0-beta1")
 }

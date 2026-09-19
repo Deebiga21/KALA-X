@@ -10,6 +10,7 @@ import com.example.kalax.data.local.KalaXDatabase
 import com.example.kalax.domain.repository.ProductPipelineRepository
 import android.graphics.Bitmap
 import android.net.Uri
+import com.example.kalax.ai.vision.ImageEnhancementEngine
 import com.example.kalax.data.remote.KalaXApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -34,6 +35,7 @@ interface AppContainer {
     val pricingEngine: PricingEngine
     val readinessEngine: CommerceReadinessEngine
     val apiService: KalaXApiService
+    val imageEnhancementEngine: ImageEnhancementEngine
 }
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
@@ -54,6 +56,7 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
 
     override val pricingEngine: PricingEngine by lazy { PricingEngine() }
     override val readinessEngine: CommerceReadinessEngine by lazy { CommerceReadinessEngine() }
+    override val imageEnhancementEngine: ImageEnhancementEngine by lazy { ImageEnhancementEngine(context) }
     
     override val apiService: KalaXApiService by lazy {
         val interceptor = HttpLoggingInterceptor().apply {

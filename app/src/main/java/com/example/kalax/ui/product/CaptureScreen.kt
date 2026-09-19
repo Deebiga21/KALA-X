@@ -41,7 +41,6 @@ fun CaptureScreen(
         out.flush()
         out.close()
         viewModel.uploadImage(file)
-        viewModel.enhanceImage() // Start edge AI enhancement immediately
         isUploading = false
         onNext()
     }
@@ -56,7 +55,6 @@ fun CaptureScreen(
             }
         }
         viewModel.uploadImage(file)
-        viewModel.enhanceImage()
         isUploading = false
         onNext()
     }

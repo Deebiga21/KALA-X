@@ -220,6 +220,10 @@ class ProductViewModel(
         }
     }
 
+    // Enhancement progress (exposed to UI)
+    val enhancementStage = container.imageEnhancementEngine.currentStage
+    val enhancementProgress = container.imageEnhancementEngine.progress
+
     fun uploadImage(file: File) {
         val uriStr = file.absolutePath
         _draft.update { it.copy(imageUri = uriStr) }
@@ -229,11 +233,19 @@ class ProductViewModel(
         viewModelScope.launch {
             _pipelineState.value = PipelineState.Enhancing
             val uriStr = _draft.value.imageUri ?: return@launch
-            val bitmap = BitmapFactory.decodeFile(uriStr)
+            val bitmap = BitmapFactory.decodeFile(uriStr) ?: return@launch
             
-            val processed = container.pipelineRepository.processImage(currentSessionId ?: 0, bitmap, uriStr)
-            _draft.update { it.copy(enhancedImageUri = processed) }
-            _pipelineState.value = PipelineState.Idle
+            try {
+                // Run the real offline enhancement engine
+                val enhancedPath = container.imageEnhancementEngine.enhance(bitmap)
+                _draft.update { it.copy(enhancedImageUri = enhancedPath) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // Fallback: use original image if enhancement fails
+                _draft.update { it.copy(enhancedImageUri = uriStr) }
+            } finally {
+                _pipelineState.value = PipelineState.Idle
+            }
         }
     }
 
