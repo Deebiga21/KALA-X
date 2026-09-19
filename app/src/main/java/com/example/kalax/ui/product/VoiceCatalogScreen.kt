@@ -412,44 +412,24 @@ fun AiProcessingView(
             modifier = Modifier.padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header
-            Text(
-                text = "AI is working...",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+            // New LatticeLoader (matches React component)
+            com.example.kalax.ui.components.LatticeLoader(
+                status = if (isStuck) "error" else "working",
+                label = "AI is working",
+                elapsedSeconds = elapsedSeconds,
+                activeColor = MaterialTheme.colorScheme.primary,
+                errorColor = Color(0xFFF59E0B) // Amber for stuck
             )
-            Spacer(modifier = Modifier.height(8.dp))
             
-            // Stats Row
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            // Hardware Stats Row
             @OptIn(ExperimentalLayoutApi::class)
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                // Time
-                val timeString = if (elapsedSeconds < 60) {
-                    "${elapsedSeconds}s"
-                } else {
-                    val mins = elapsedSeconds / 60
-                    val secs = elapsedSeconds % 60
-                    "${mins}m ${secs}s"
-                }
-                
-                Text(
-                    text = "⏱ $timeString",
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                
-                Text(
-                    text = " • ",
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha=0.3f),
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                )
-                
                 // Temp
                 val tempColor = when {
                     currentTemp > 42f -> Color(0xFFE53935)
