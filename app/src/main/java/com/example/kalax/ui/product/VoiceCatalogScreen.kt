@@ -4,8 +4,11 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -237,148 +240,155 @@ fun VoiceCatalogScreen(
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-        
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        // Main content area
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
+            contentAlignment = Alignment.Center
         ) {
-            if (state == "idle" || state == "recording") {
-                // Recording elapsed time tracking
-                var recordingElapsedMs by remember { mutableLongStateOf(0L) }
-                
-                LaunchedEffect(state) {
-                    if (state == "recording") {
-                        recordingElapsedMs = 0L
-                        while (true) {
-                            delay(100)
-                            recordingElapsedMs += 100
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (state == "idle" || state == "recording") {
+                    // Recording elapsed time tracking
+                    var recordingElapsedMs by remember { mutableLongStateOf(0L) }
+                    
+                    LaunchedEffect(state) {
+                        if (state == "recording") {
+                            recordingElapsedMs = 0L
+                            while (true) {
+                                delay(100)
+                                recordingElapsedMs += 100
+                            }
                         }
                     }
-                }
 
-                com.example.kalax.ui.components.VoicePill(
-                    isRecording = state == "recording",
-                    elapsedMs = recordingElapsedMs,
-                    onStart = {
-                        state = "recording"
-                        permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
-                    },
-                    onStop = { reason ->
-                        if (reason == "cancelled") {
-                            speechRecognizer.cancel()
-                            state = "idle"
-                        } else if (reason == "completed" || reason == "tapped") {
-                            speechRecognizer.stopListening()
-                            // The RecognitionListener will handle the transition when it finishes
+                    com.example.kalax.ui.components.VoicePill(
+                        isRecording = state == "recording",
+                        elapsedMs = recordingElapsedMs,
+                        onStart = {
+                            state = "recording"
+                            permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                        },
+                        onStop = { reason ->
+                            if (reason == "cancelled") {
+                                speechRecognizer.cancel()
+                                state = "idle"
+                            } else if (reason == "completed" || reason == "tapped") {
+                                speechRecognizer.stopListening()
+                                // The RecognitionListener will handle the transition when it finishes
+                            }
+                        },
+                        accentColor = MaterialTheme.colorScheme.onBackground,
+                        iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        background = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    
+                    if (state == "idle") {
+                        Spacer(modifier = Modifier.height(24.dp))
+                        TextButton(onClick = { state = "text_entry" }) {
+                            Text("Or type manually", color = MaterialTheme.colorScheme.primary)
                         }
-                    },
-                    accentColor = MaterialTheme.colorScheme.onBackground,
-                    iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    background = MaterialTheme.colorScheme.surfaceVariant
-                )
-                
-                if (state == "idle") {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    TextButton(onClick = { state = "text_entry" }) {
-                        Text("Or type manually", color = MaterialTheme.colorScheme.primary)
                     }
-                }
 
-            } else if (state == "processing") {
-                // ─── Real-Time AI Pipeline Progress ──────────────────────
-                val context = LocalContext.current
-                AiProcessingView(
-                    currentStep = currentStep,
-                    totalSteps = aiPipelineSteps.size,
-                    elapsedSeconds = elapsedSeconds,
-                    isStuck = isStuck,
-                    context = context,
-                    onCancel = { cancelProcessing() }
-                )
+                } else if (state == "processing") {
+                    // ─── Real-Time AI Pipeline Progress ──────────────────────
+                    val context = LocalContext.current
+                    AiProcessingView(
+                        currentStep = currentStep,
+                        totalSteps = aiPipelineSteps.size,
+                        elapsedSeconds = elapsedSeconds,
+                        isStuck = isStuck,
+                        context = context,
+                        onCancel = { cancelProcessing() }
+                    )
 
-            } else if (state == "text_entry") {
-                OutlinedTextField(
-                    value = fallbackText,
-                    onValueChange = { fallbackText = it },
-                    label = { Text("Product Description") },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 4
-                )
-                Spacer(modifier = Modifier.height(32.dp))
-                Button(
-                    onClick = {
-                        state = "processing"
-                        currentStep = 0
-                        elapsedSeconds = 0
-                        isStuck = false
-                        viewModel.updateDraft { it.copy(transcribedText = fallbackText) }
-                        viewModel.generateCatalog()
-                    },
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Generate Catalog", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
-                }
-            } else {
-                // Done state - AI Catalog Generation Review
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text("AI Generated Catalog", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                            Icon(Icons.Outlined.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                } else if (state == "text_entry") {
+                    OutlinedTextField(
+                        value = fallbackText,
+                        onValueChange = { fallbackText = it },
+                        label = { Text("Product Description") },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 4
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Button(
+                        onClick = {
+                            state = "processing"
+                            currentStep = 0
+                            elapsedSeconds = 0
+                            isStuck = false
+                            viewModel.updateDraft { it.copy(transcribedText = fallbackText) }
+                            viewModel.generateCatalog()
+                        },
+                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text("Generate Catalog", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                    }
+                } else {
+                    // Done state - AI Catalog Generation Review
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                Text("AI Generated Catalog", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Icon(Icons.Outlined.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            
+                            OutlinedTextField(
+                                value = draft.name,
+                                onValueChange = { val newName = it; viewModel.updateDraft { it.copy(name = newName) } },
+                                label = { Text("Title") },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = MaterialTheme.colorScheme.onBackground, unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            OutlinedTextField(
+                                value = draft.description,
+                                onValueChange = { val newDesc = it; viewModel.updateDraft { it.copy(description = newDesc) } },
+                                label = { Text("Description") },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = MaterialTheme.colorScheme.onBackground, unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                                modifier = Modifier.fillMaxWidth(),
+                                minLines = 3
+                            )
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        OutlinedTextField(
-                            value = draft.name,
-                            onValueChange = { val newName = it; viewModel.updateDraft { it.copy(name = newName) } },
-                            label = { Text("Title") },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = MaterialTheme.colorScheme.onBackground, unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
-                                focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        OutlinedTextField(
-                            value = draft.description,
-                            onValueChange = { val newDesc = it; viewModel.updateDraft { it.copy(description = newDesc) } },
-                            label = { Text("Description") },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = MaterialTheme.colorScheme.onBackground, unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
-                                focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
-                            ),
-                            modifier = Modifier.fillMaxWidth(),
-                            minLines = 3
-                        )
                     }
-                }
-                
-                Spacer(modifier = Modifier.height(32.dp))
-                Button(
-                    onClick = onNext,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Next", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                    
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Button(
+                        onClick = onNext,
+                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text("Next", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
-        
-        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
