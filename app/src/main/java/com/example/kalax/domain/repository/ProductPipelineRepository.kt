@@ -6,6 +6,7 @@ import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import com.google.android.gms.tasks.Tasks
 import com.example.kalax.data.remote.AnalyzeImageRequest
 import android.graphics.Bitmap
+import kotlinx.coroutines.flow.firstOrNull
 import android.net.Uri
 import com.example.kalax.ai.llm.CatalogInferenceEngine
 import com.example.kalax.ai.speech.AudioTranscriber
@@ -110,12 +111,43 @@ class ProductPipelineRepository(
         return "Handcrafted item."
     }
 
-    // Step 4: Generate Catalog
+    // Step 4: Generate Catalog (ON-DEVICE)
     suspend fun generateCatalog(productId: Long, transcription: String) {
         try {
-            val request = com.example.kalax.data.remote.GenerateCatalogRequest(transcription)
-            val response = apiService.generateCatalog(productId, request)
-            catalogDao.insertCatalogItem(response.toCatalogItem())
+            val defaultProfile = com.example.kalax.data.local.entity.ArtisanProfile(
+                name = "Artisan",
+                craftType = "General",
+                baseHourlyLaborRate = 100.0,
+                standardPackagingCost = 20.0
+            )
+            val profile = profileDao.getProfile().firstOrNull() ?: defaultProfile
+            
+            // Generate on-device using LocalCatalogInferenceEngine
+            val aiResult = inferenceEngine.generateCatalogJson(transcription, profile)
+            
+            // Get local item and update it
+            val currentItem = catalogDao.getById(productId)
+            if (currentItem != null) {
+                val updatedItem = currentItem.copy(
+                    title = aiResult.title,
+                    category = aiResult.category,
+                    description = aiResult.description,
+                    keywords = aiResult.tags.joinToString(", "),
+                    materialCost = aiResult.cost_breakdown.material,
+                    labourCost = aiResult.cost_breakdown.labour,
+                    packagingCost = aiResult.cost_breakdown.packaging,
+                    suggestedPrice = aiResult.suggested_price,
+                    readinessScore = aiResult.readiness_score
+                )
+                catalogDao.insertCatalogItem(updatedItem)
+                
+                // Sync to backend in background if available
+                try {
+                    apiService.updateProduct(updatedItem)
+                } catch (e: Exception) {
+                    // Ignore backend sync failure, we are offline-first
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
