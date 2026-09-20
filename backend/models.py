@@ -22,5 +22,8 @@ class Product(Base):
     catalog_description = Column(Text, nullable=True)
     catalog_seo_tags = Column(String, nullable=True)
     
+    pricing_data = Column(Text, nullable=True)
+    catalog_data = Column(Text, nullable=True)
+    
     readiness_score = Column(Float, default=0.0)
     is_published = Column(Boolean, default=False)

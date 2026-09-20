@@ -119,14 +119,23 @@ class ProductPipelineRepository(
         }
     }
     
-    suspend fun calculatePricing(productId: Long): Double {
+    suspend fun calculatePricing(productId: Long, rawCost: Int, laborCost: Int, packagingCost: Int, otherCost: Int): Double {
         return try {
-            val response = apiService.calculatePricing(productId)
+            val request = com.example.kalax.data.remote.PricingRequest(
+                raw_material_cost = rawCost.toFloat(),
+                labor_cost = laborCost.toFloat(),
+                packaging_cost = packagingCost.toFloat(),
+                other_cost = otherCost.toFloat(),
+                margin_percentage = 30.0f
+            )
+            val response = apiService.calculatePricing(productId, request)
             catalogDao.insertCatalogItem(response.toCatalogItem())
             response.suggestedPrice
         } catch (e: Exception) {
             e.printStackTrace()
-            0.0
+            // Fallback locally if network fails
+            val totalCost = rawCost + laborCost + packagingCost + otherCost
+            totalCost * 1.3
         }
     }
 

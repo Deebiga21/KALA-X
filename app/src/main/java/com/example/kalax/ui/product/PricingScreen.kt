@@ -165,7 +165,7 @@ fun CostInput(label: String, value: String, onValueChange: (String) -> Unit) {
         OutlinedTextField(
             value = if (value == "0") "" else value,
             onValueChange = onValueChange,
-            modifier = Modifier.width(100.dp).height(48.dp),
+            modifier = Modifier.width(100.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = MaterialTheme.colorScheme.onBackground,
@@ -173,7 +173,8 @@ fun CostInput(label: String, value: String, onValueChange: (String) -> Unit) {
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
             ),
-            singleLine = true
+            singleLine = true,
+            maxLines = 1
         )
     }
 }

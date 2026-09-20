@@ -74,7 +74,7 @@ interface KalaXApiService {
     suspend fun generateCatalog(@Path("id") id: Long): ProductResponse
 
     @POST("/api/products/{id}/pricing")
-    suspend fun calculatePricing(@Path("id") id: Long): ProductResponse
+    suspend fun calculatePricing(@Path("id") id: Long, @Body request: PricingRequest): ProductResponse
 
     @POST("/api/products/{id}/readiness")
     suspend fun checkReadiness(@Path("id") id: Long): ProductResponse
@@ -106,4 +106,12 @@ data class InsightsResponse(
     val trend_percentage: Int,
     val buyer_interest_percentage: Int,
     val opportunity_description: String
+)
+
+data class PricingRequest(
+    val raw_material_cost: Float,
+    val labor_cost: Float,
+    val packaging_cost: Float,
+    val other_cost: Float,
+    val margin_percentage: Float = 30.0f
 )

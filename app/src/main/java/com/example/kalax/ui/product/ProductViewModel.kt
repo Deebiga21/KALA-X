@@ -312,8 +312,21 @@ class ProductViewModel(
     fun calculatePrice() {
         viewModelScope.launch {
             _pipelineState.value = PipelineState.Pricing
-            val price = container.pipelineRepository.calculatePricing(currentSessionId ?: 0)
+            val currentDraft = _draft.value
+            val price = container.pipelineRepository.calculatePricing(
+                productId = currentSessionId ?: 0,
+                rawCost = currentDraft.rawCost,
+                laborCost = currentDraft.labourCost,
+                packagingCost = currentDraft.packagingCost,
+                otherCost = currentDraft.otherCost
+            )
             _draft.update { it.copy(recommendedPrice = price.toInt()) }
+            
+            // Sync with backend so PricingScreen can save draft properly
+            if (currentSessionId != null) {
+                container.pipelineRepository.updateProduct(getCurrentCatalogItem())
+            }
+            
             _pipelineState.value = PipelineState.Idle
         }
     }

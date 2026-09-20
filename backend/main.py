@@ -141,15 +141,24 @@ def set_pricing(id: int, pricing: schemas.PricingInput, db: Session = Depends(ge
         
     product.raw_material_cost = pricing.raw_material_cost
     product.labor_cost = pricing.labor_cost
-    product.packaging_cost = pricing.packaging_cost
+    product.packaging_cost = pricing.packaging_cost + pricing.other_cost
     product.margin_percentage = pricing.margin_percentage
     
-    product.final_price = pricing_service.calculate_price(
-        pricing.raw_material_cost,
-        pricing.labor_cost,
-        pricing.packaging_cost,
-        pricing.margin_percentage
-    )
+    # Simple pricing calculation if pricing_service is complex or missing
+    total_cost = pricing.raw_material_cost + pricing.labor_cost + pricing.packaging_cost + pricing.other_cost
+    product.final_price = total_cost * (1 + pricing.margin_percentage / 100.0)
+    
+    # Store pricing data as json string for later use if needed
+    import json
+    product.pricing_data = json.dumps({
+        "raw_cost": pricing.raw_material_cost,
+        "labor_cost": pricing.labor_cost,
+        "packaging_cost": pricing.packaging_cost,
+        "other_cost": pricing.other_cost,
+        "total_cost": total_cost,
+        "recommended_price": product.final_price
+    })
+
     
     db.commit()
     db.refresh(product)

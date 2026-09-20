@@ -31,4 +31,5 @@ class PricingInput(BaseModel):
     raw_material_cost: float
     labor_cost: float
     packaging_cost: float
-    margin_percentage: float
+    other_cost: float = 0.0
+    margin_percentage: float = 30.0
