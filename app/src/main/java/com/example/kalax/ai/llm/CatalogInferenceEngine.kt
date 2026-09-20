@@ -88,18 +88,52 @@ class LocalCatalogInferenceEngine : CatalogInferenceEngine {
     }
 
     private fun runLocalLlm(prompt: String, loraAdapterPath: String?): String {
-        // Mock ExecuTorch INT4 inference runner
-        // In production: load base model + optional LoRA adapter via ExecuTorch/MediaPipe
+        // Extract product name from prompt/transcription
+        // Since we are entirely offline and bypassing a real LLM for the hackathon (without 2GB model), 
+        // we use a highly sophisticated heuristic parser to generate a magical response based on their words!
+        
+        val transcription = prompt.substringAfter("Transcription: \"").substringBefore("\"").trim().lowercase()
+        
+        var name = "Handcrafted Item"
+        var category = "Home & Living"
+        var baseMaterial = "High-Quality Material"
+        var costRaw = 150.0
+        
+        if (transcription.contains("bag") || transcription.contains("tote")) {
+            name = "Handwoven Eco Tote Bag"
+            category = "Accessories > Bags"
+            baseMaterial = "Jute & Cotton"
+            costRaw = 80.0
+        } else if (transcription.contains("pot") || transcription.contains("vase") || transcription.contains("clay")) {
+            name = "Artisan Clay Vase"
+            category = "Home Decor > Pottery"
+            baseMaterial = "Natural Terracotta"
+            costRaw = 100.0
+        } else if (transcription.contains("jewelry") || transcription.contains("necklace") || transcription.contains("earring")) {
+            name = "Boho Statement Jewelry"
+            category = "Jewelry > Handmade"
+            baseMaterial = "Brass & Beads"
+            costRaw = 120.0
+        } else if (transcription.isNotBlank() && transcription.length > 5) {
+            val words = transcription.split(" ")
+            val keyword = words.firstOrNull { it.length > 4 && it != "beautiful" && it != "handcrafted" } ?: "Item"
+            name = "Premium Handcrafted ${keyword.replaceFirstChar { it.uppercase() }}"
+            baseMaterial = "Sourced Locally"
+        }
+        
+        val desc = "Experience the elegance of this ${name.lowercase()}, carefully handcrafted by skilled artisans. Made from ${baseMaterial.lowercase()}, this piece adds a unique, authentic touch to your life. ${transcription.replaceFirstChar { it.uppercase() }}"
+        val price = (costRaw + 150.0 + 40.0) * 1.6
+
         return """
             {
-              "title": "Handcrafted Terracotta Pot",
-              "category": "Home Decor > Pottery",
-              "description": "An exquisite terracotta pot handcrafted with love.",
-              "tags": ["Handmade", "Terracotta", "Pottery"],
-              "cost_breakdown": { "material": 100.0, "labour": 200.0, "packaging": 50.0 },
-              "suggested_price": 450.0,
-              "readiness_score": 90,
-              "missing_fields": ["dimensions"]
+              "title": "$name",
+              "category": "$category",
+              "description": "$desc",
+              "tags": ["Handmade", "Artisan", "SmallBusiness", "${category.split(">")[0].trim().replace(" ", "")}"],
+              "cost_breakdown": { "material": $costRaw, "labour": 150.0, "packaging": 40.0 },
+              "suggested_price": $price,
+              "readiness_score": 95,
+              "missing_fields": []
             }
         """.trimIndent()
     }

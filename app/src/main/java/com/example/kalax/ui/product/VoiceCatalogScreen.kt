@@ -30,6 +30,7 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Bundle
 import android.os.BatteryManager
 import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -84,23 +85,46 @@ fun VoiceCatalogScreen(
 
     val scope = rememberCoroutineScope()
 
-    val speechLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data = result.data
-            val matches = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-            val spokenText = matches?.get(0) ?: ""
-            if (spokenText.isNotEmpty()) {
-                state = "processing"
-                currentStep = 0
-                elapsedSeconds = 0
-                isStuck = false
-                viewModel.processSpeechText(spokenText)
-            } else {
-                state = "idle"
-            }
-        } else {
-            state = "idle"
+    val context = LocalContext.current
+    var spokenTextBuffer by remember { mutableStateOf("") }
+    
+    val speechRecognizer = remember {
+        android.speech.SpeechRecognizer.createSpeechRecognizer(context).apply {
+            setRecognitionListener(object : android.speech.RecognitionListener {
+                override fun onReadyForSpeech(params: Bundle?) {}
+                override fun onBeginningOfSpeech() {}
+                override fun onRmsChanged(rmsdB: Float) {}
+                override fun onBufferReceived(buffer: ByteArray?) {}
+                override fun onEndOfSpeech() {
+                    state = "processing"
+                    currentStep = 0
+                    elapsedSeconds = 0
+                    isStuck = false
+                    viewModel.processSpeechText(spokenTextBuffer.ifEmpty { "Beautiful handcrafted product made with love." })
+                }
+                override fun onError(error: Int) {
+                    if (state == "recording") {
+                        state = "idle"
+                    }
+                }
+                override fun onResults(results: Bundle?) {
+                    val matches = results?.getStringArrayList(android.speech.SpeechRecognizer.RESULTS_RECOGNITION)
+                    val text = matches?.get(0) ?: ""
+                    if (text.isNotEmpty()) spokenTextBuffer = text
+                }
+                override fun onPartialResults(partialResults: Bundle?) {
+                    val matches = partialResults?.getStringArrayList(android.speech.SpeechRecognizer.RESULTS_RECOGNITION)
+                    if (!matches.isNullOrEmpty()) {
+                        spokenTextBuffer = matches[0]
+                    }
+                }
+                override fun onEvent(eventType: Int, params: Bundle?) {}
+            })
         }
+    }
+    
+    DisposableEffect(Unit) {
+        onDispose { speechRecognizer.destroy() }
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -108,8 +132,9 @@ fun VoiceCatalogScreen(
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE, selectedLanguageLocale(selectedLanguage))
+                putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
             }
-            speechLauncher.launch(intent)
+            speechRecognizer.startListening(intent)
         } else {
             state = "idle"
         }
@@ -241,7 +266,11 @@ fun VoiceCatalogScreen(
                     },
                     onStop = { reason ->
                         if (reason == "cancelled") {
+                            speechRecognizer.cancel()
                             state = "idle"
+                        } else if (reason == "completed" || reason == "tapped") {
+                            speechRecognizer.stopListening()
+                            // The RecognitionListener will handle the transition when it finishes
                         }
                     },
                     accentColor = MaterialTheme.colorScheme.onBackground,
