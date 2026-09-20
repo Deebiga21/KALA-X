@@ -1,6 +1,8 @@
 import os
 import shutil
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -19,6 +21,9 @@ app = FastAPI(title="KALA-X Backend")
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Mount uploads dir so the share page can load images
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 @app.post("/api/products", response_model=schemas.ProductResponse)
 def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
@@ -231,3 +236,145 @@ def get_insights(db: Session = Depends(get_db)):
         "buyer_interest_percentage": 21,
         "opportunity_description": f"Demand for {category} is high. Competitors price around {int(price_val*0.9)} - {int(price_val*1.1)}."
     }
+
+@app.get("/share/{id}", response_class=HTMLResponse)
+def share_product(id: int, db: Session = Depends(get_db)):
+    product = db.query(models.Product).filter(models.Product.id == id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    title = product.catalog_title or product.name or "Awesome Product"
+    desc = product.catalog_description or product.description or ""
+    price_str = f"₹{int(product.final_price)}" if product.final_price else "Contact for Price"
+    
+    # image_url might look like "uploads/1_capture.jpg"
+    # Ensure it's correctly mapped to the static mount
+    img_src = f"/{product.image_url}" if product.image_url else "https://via.placeholder.com/600x600?text=No+Image"
+    # Replace backward slashes with forward slashes for URLs
+    img_src = img_src.replace("\\", "/")
+
+    # Generate a simple WhatsApp link text
+    wa_text = f"Hi, I'm interested in buying: {title}. Is it available?"
+    from urllib.parse import quote
+    wa_url = f"https://wa.me/?text={quote(wa_text)}"
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{title} | KALA-X</title>
+        <style>
+            body {{
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f5f5f5;
+                color: #27272a;
+            }}
+            .container {{
+                max-width: 480px;
+                margin: 0 auto;
+                background: white;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }}
+            .image-container {{
+                width: 100%;
+                aspect-ratio: 4/3;
+                background: #e4e4e7;
+                overflow: hidden;
+            }}
+            .image-container img {{
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }}
+            .content {{
+                padding: 24px;
+                flex-grow: 1;
+            }}
+            h1 {{
+                margin: 0 0 8px 0;
+                font-size: 24px;
+                line-height: 1.2;
+            }}
+            .price {{
+                font-size: 20px;
+                font-weight: bold;
+                color: #16a34a;
+                margin-bottom: 20px;
+            }}
+            .description {{
+                line-height: 1.6;
+                color: #52525b;
+                margin-bottom: 32px;
+                white-space: pre-line;
+            }}
+            .tags {{
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 32px;
+            }}
+            .tag {{
+                background: #f4f4f5;
+                padding: 4px 12px;
+                border-radius: 100px;
+                font-size: 13px;
+                color: #52525b;
+            }}
+            .cta-button {{
+                display: block;
+                width: 100%;
+                padding: 16px;
+                background: #25D366;
+                color: white;
+                text-align: center;
+                text-decoration: none;
+                font-weight: bold;
+                border-radius: 12px;
+                font-size: 16px;
+                box-sizing: border-box;
+                margin-top: auto;
+            }}
+            .footer {{
+                text-align: center;
+                padding: 16px;
+                font-size: 12px;
+                color: #a1a1aa;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="image-container">
+                <img src="{img_src}" alt="{title}" onerror="this.src='https://via.placeholder.com/600x600?text=Image+Not+Found'">
+            </div>
+            <div class="content">
+                <h1>{title}</h1>
+                <div class="price">{price_str}</div>
+                <div class="description">{desc}</div>
+                <div class="tags">
+    """
+    
+    if product.catalog_seo_tags:
+        tags = [t.strip() for t in product.catalog_seo_tags.split(',')]
+        for tag in tags:
+            if tag:
+                html_content += f'<span class="tag">#{tag.replace("#", "")}</span>'
+                
+    html_content += f"""
+                </div>
+                <a href="{wa_url}" class="cta-button">Contact Seller on WhatsApp</a>
+            </div>
+            <div class="footer">Powered by KALA-X</div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    return HTMLResponse(content=html_content)
