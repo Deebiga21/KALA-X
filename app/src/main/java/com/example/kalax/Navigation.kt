@@ -181,6 +181,11 @@ fun MainNavigation() {
           FinalListingScreen(
               viewModel = productViewModel,
               onBack = { backStack.removeLastOrNull() },
+              onSaveDraft = {
+                  productViewModel.saveDraft()
+                  backStack.clear()
+                  backStack.add(Catalog)
+              },
               onPublish = {
                   productViewModel.publishDraft()
                   backStack.clear()

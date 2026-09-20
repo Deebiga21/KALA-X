@@ -229,20 +229,38 @@ class ProductViewModel(
         _draft.update { it.copy(imageUri = uriStr) }
     }
     
+    private val _enhancementError = MutableStateFlow(false)
+    val enhancementError: StateFlow<Boolean> = _enhancementError.asStateFlow()
+
     fun enhanceImage() {
         viewModelScope.launch {
+            _enhancementError.value = false
             _pipelineState.value = PipelineState.Enhancing
-            val uriStr = _draft.value.imageUri ?: return@launch
-            val bitmap = BitmapFactory.decodeFile(uriStr) ?: return@launch
-            
             try {
-                // Run the real offline enhancement engine
-                val enhancedPath = container.imageEnhancementEngine.enhance(bitmap)
-                _draft.update { it.copy(enhancedImageUri = enhancedPath) }
-            } catch (e: Exception) {
+                val uriStr = _draft.value.imageUri
+                    ?: throw IllegalStateException("No image to enhance")
+                
+                // Downsample large camera photos to prevent OOM
+                val options = BitmapFactory.Options()
+                options.inJustDecodeBounds = true
+                BitmapFactory.decodeFile(uriStr, options)
+                val maxDim = maxOf(options.outWidth, options.outHeight)
+                options.inJustDecodeBounds = false
+                options.inSampleSize = if (maxDim > 1280) maxDim / 1280 else 1
+                
+                val bitmap = BitmapFactory.decodeFile(uriStr, options)
+                    ?: throw IllegalStateException("Failed to decode image")
+                
+                try {
+                    val enhancedPath = container.imageEnhancementEngine.enhance(bitmap)
+                    _draft.update { it.copy(enhancedImageUri = enhancedPath) }
+                } finally {
+                    bitmap.recycle()
+                }
+            } catch (e: Throwable) {
                 e.printStackTrace()
-                // Fallback: use original image if enhancement fails
-                _draft.update { it.copy(enhancedImageUri = uriStr) }
+                _enhancementError.value = true
+                // Don't set enhancedImageUri = imageUri (that breaks isDone detection)
             } finally {
                 _pipelineState.value = PipelineState.Idle
             }

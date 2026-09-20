@@ -29,14 +29,16 @@ fun EnhanceScreen(
     val draft by viewModel.draft.collectAsState()
     val pipelineState by viewModel.pipelineState.collectAsState()
     val isProcessing = pipelineState is PipelineState.Enhancing
+    val hasError by viewModel.enhancementError.collectAsState()
     val isDone = draft.enhancedImageUri != null && draft.enhancedImageUri != draft.imageUri && !isProcessing
 
     // Real-time stage and progress from the offline engine
     val currentStage by viewModel.enhancementStage.collectAsState()
     val engineProgress by viewModel.enhancementProgress.collectAsState()
 
-    // Map engine stage to RefineFrame status
+    // Map engine stage to RefineFrame status (including error)
     val refineStatus = when {
+        hasError -> "error"
         isDone -> "complete"
         currentStage == EnhancementStage.DETECTING -> "queued"
         currentStage == EnhancementStage.SEGMENTING -> "generating"
@@ -173,9 +175,9 @@ fun EnhanceScreen(
             OutlinedButton(
                 onClick = { viewModel.enhanceImage() },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
-                enabled = isDone
+                enabled = !isProcessing
             ) {
-                Text("Try Again", color = if (isDone) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Try Again", color = if (!isProcessing) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         

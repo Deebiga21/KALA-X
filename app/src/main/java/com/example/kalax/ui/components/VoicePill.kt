@@ -54,7 +54,7 @@ fun VoicePill(
 ) {
     var isPressed by remember { mutableStateOf(false) }
     var dragOffsetX by remember { mutableFloatStateOf(0f) }
-    val cancelDistPx = with(LocalDensity.current) { cancelDistance.dp.toPx() }
+    val cancelDistPx = with(LocalDensity.current) { cancelDistance.dp.toPx() }.coerceAtLeast(1f)
 
     // Waveform bar animation
     val infiniteTransition = rememberInfiniteTransition(label = "waveform")
@@ -127,12 +127,18 @@ fun VoicePill(
                         if (isRecording) {
                             Modifier
                                 .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onTap = { onStop("completed") }
+                                    )
+                                }
+                                .pointerInput(Unit) {
                                     detectDragGestures(
                                         onDragStart = { dragOffsetX = 0f },
                                         onDrag = { change, offset ->
                                             change.consume()
                                             dragOffsetX += offset.x
-                                            if (abs(dragOffsetX) > cancelDistPx) {
+                                            // Only cancel on LEFT drag (negative X)
+                                            if (dragOffsetX < -cancelDistPx) {
                                                 onStop("cancelled")
                                                 dragOffsetX = 0f
                                             }

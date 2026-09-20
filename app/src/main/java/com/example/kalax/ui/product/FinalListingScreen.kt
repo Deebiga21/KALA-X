@@ -73,7 +73,7 @@ private val platformAdapters = listOf(
                 append("${draft.description.take(300)}\n\n")
                 if (draft.recommendedPrice > 0) append("💵 ₹${draft.recommendedPrice}\n\n")
                 append("🔗 Link in bio to order!\n\n")
-                val tags = draft.keywords.split(",").take(8).joinToString(" ") { "#${it.trim().replace(" ", "").replace("#", "")}" }
+                val tags = draft.keywords.split(",").map { it.trim() }.filter { it.isNotEmpty() }.take(8).joinToString(" ") { "#${it.replace(" ", "").replace("#", "")}" }
                 append(tags)
                 append("\n#handmade #artisan #shoplocal #madewithlove #smallbusiness")
             }
@@ -134,6 +134,7 @@ private val imageAssets = listOf(
 fun FinalListingScreen(
     viewModel: ProductViewModel,
     onBack: () -> Unit,
+    onSaveDraft: () -> Unit,
     onPublish: () -> Unit
 ) {
     val draft by viewModel.draft.collectAsState()
@@ -403,10 +404,7 @@ fun FinalListingScreen(
         // ── Bottom Action Row ──
         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp, vertical = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             OutlinedButton(
-                onClick = {
-                    viewModel.saveDraft()
-                    onPublish()
-                },
+                onClick = { onSaveDraft() },
                 modifier = Modifier.weight(1f).height(56.dp)
             ) {
                 Text("Save Draft", color = MaterialTheme.colorScheme.onBackground)

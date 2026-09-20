@@ -54,12 +54,12 @@ fun RefineFrame(
     data class StageProps(val blurDp: Float, val saturation: Float, val scale: Float, val opacity: Float)
 
     val stageProps = when (status) {
-        "queued" -> StageProps(12f, 0.6f, 1.04f, 0.55f)
-        "generating" -> StageProps(5f, 0.8f, 1.02f, 0.85f)
-        "refining" -> StageProps(1.5f, 0.95f, 1.005f, 1f)
+        "queued" -> StageProps(4f, 0.6f, 1.04f, 0.55f)
+        "generating" -> StageProps(1.5f, 0.8f, 1.02f, 0.85f)
+        "refining" -> StageProps(0.5f, 0.95f, 1.005f, 1f)
         "complete" -> StageProps(0f, 1f, 1f, 1f)
-        "error" -> StageProps(6f, 0.5f, 1f, 0.28f)
-        else -> StageProps(5f, 0.8f, 1.02f, 0.85f)
+        "error" -> StageProps(2f, 0.5f, 1f, 0.28f)
+        else -> StageProps(1.5f, 0.8f, 1.02f, 0.85f)
     }
 
     // Animate transitions between stages (like CSS transition with var(--rf-stage))
@@ -88,8 +88,8 @@ fun RefineFrame(
     val isActive = status in listOf("queued", "generating", "refining")
     val infiniteTransition = rememberInfiniteTransition(label = "sweep")
     val sweepPosition by infiniteTransition.animateFloat(
-        initialValue = 1.3f,
-        targetValue = -1.3f,
+        initialValue = -1.3f,
+        targetValue = 1.3f,
         animationSpec = infiniteRepeatable(
             animation = tween(2200, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
@@ -186,14 +186,14 @@ fun RefineFrame(
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth(animatedProgress)
+                        .fillMaxWidth(animatedProgress.coerceIn(0f, 1f))
                         .background(Color.White.copy(alpha = 0.6f))
                 )
             }
         }
 
         // ── Status chip (bottom-left, matching refine-frame__chip) ──
-        if (showStatus && status != "complete") {
+        if (showStatus) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
@@ -208,15 +208,20 @@ fun RefineFrame(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
                     ) {
-                        // Spinner icon (matches refine-frame__mark[data-kind='spin'])
-                        if (isActive) {
-                            Box(modifier = Modifier.size(13.dp).graphicsLayer { rotationZ = spinAngle }) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.fillMaxSize(),
-                                    color = Color(0xFFF5F5F5).copy(alpha = 0.8f),
-                                    strokeWidth = 1.5.dp
-                                )
-                            }
+                        // Status icon
+                        if (status == "complete") {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = null,
+                                tint = Color(0xFF22C55E),
+                                modifier = Modifier.size(13.dp)
+                            )
+                        } else if (isActive) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(13.dp),
+                                color = Color(0xFFF5F5F5).copy(alpha = 0.8f),
+                                strokeWidth = 1.5.dp
+                            )
                         } else if (status == "error") {
                             Icon(
                                 Icons.Default.Close,
