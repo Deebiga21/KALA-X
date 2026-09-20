@@ -2,8 +2,10 @@ package com.example.kalax.ui.product
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Info
@@ -57,9 +59,13 @@ fun PricingScreen(
         }
         
         Spacer(modifier = Modifier.height(16.dp))
+        val scrollState = androidx.compose.foundation.rememberScrollState()
         
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .verticalScroll(scrollState)
         ) {
             Text("Cost Breakdown (₹)", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Spacer(modifier = Modifier.height(16.dp))
@@ -87,18 +93,18 @@ fun PricingScreen(
             Spacer(modifier = Modifier.height(24.dp))
             
             if (draft.recommendedPrice == 0 || isCalculating) {
-                Button(
-                    onClick = { isCalculating = true },
+                com.example.kalax.ui.components.HoldButton(
                     modifier = Modifier.fillMaxWidth().height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary.copy(0.2f)),
-                    enabled = !isCalculating
-                ) {
-                    if (isCalculating) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
-                    } else {
-                        Text("Calculate Price", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                    }
-                }
+                    text = "Hold to Calculate Price",
+                    doneLabel = "Calculating...",
+                    backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                    fillColor = MaterialTheme.colorScheme.primary,
+                    textColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fillTextColor = MaterialTheme.colorScheme.onPrimary,
+                    holdTime = 1500L,
+                    resetAfter = 0L,
+                    onHold = { isCalculating = true }
+                )
             } else {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -148,6 +154,7 @@ fun PricingScreen(
                         Text("Accept ₹${draft.recommendedPrice}", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                     }
                 }
+                Spacer(modifier = Modifier.height(32.dp)) // padding for bottom nav bar
             }
         }
     }
