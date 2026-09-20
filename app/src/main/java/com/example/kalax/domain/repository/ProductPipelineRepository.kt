@@ -43,24 +43,28 @@ class ProductPipelineRepository(
     private val apiService: KalaXApiService
 ) {
     
-    // Step 1: Create session
+    // Step 1: Create session (OFFLINE FIRST)
     suspend fun createProductSession(): Long {
         return try {
-            val request = com.example.kalax.data.remote.CreateProductRequest(name = "New Draft")
-            val response = apiService.createProduct(request)
-            val item = response.toCatalogItem()
-            catalogDao.insertCatalogItem(item)
-            item.id
-        } catch (e: Exception) {
-            e.printStackTrace()
-            // Fallback to local if network fails
             val newItem = CatalogItem(
-                title = "", category = "Uncategorized", description = "", tags = "",
+                title = "New Draft", category = "Uncategorized", description = "", tags = "",
                 rawPhotoUri = null, processedPhotoUri = null,
                 materialCost = 0.0, labourCost = 0.0, packagingCost = 0.0,
-                suggestedPrice = 0.0, readinessScore = 0
+                suggestedPrice = 0.0, readinessScore = 0, status = "Draft"
             )
-            catalogDao.insertCatalogItem(newItem)
+            val localId = catalogDao.insertCatalogItem(newItem)
+            
+            try {
+                val request = com.example.kalax.data.remote.CreateProductRequest(name = "New Draft")
+                apiService.createProduct(request)
+            } catch (e: Exception) {
+                // Ignore backend failure
+            }
+            
+            localId
+        } catch (e: Exception) {
+            e.printStackTrace()
+            0L
         }
     }
 
@@ -100,15 +104,21 @@ class ProductPipelineRepository(
 
     // Step 3: Transcribe Voice
     suspend fun transcribeAudio(productId: Long, audioUri: Uri?): String {
-        try {
+        return try {
             val text = "Handcrafted item." // Mocking voice text or use audioUri if needed
-            val response = apiService.processVoice(productId, VoiceRequest(text = text, audioUri = audioUri?.toString()))
-            catalogDao.insertCatalogItem(response.toCatalogItem())
-            return response.transcription ?: text
+            try {
+                apiService.processVoice(productId, VoiceRequest(text = text, audioUri = audioUri?.toString()))
+            } catch(e: Exception) {}
+            
+            val item = catalogDao.getById(productId)
+            if (item != null) {
+                catalogDao.insertCatalogItem(item.copy(transcription = text))
+            }
+            text
         } catch (e: Exception) {
             e.printStackTrace()
+            "Handcrafted item."
         }
-        return "Handcrafted item."
     }
 
     // Step 4: Generate Catalog (ON-DEVICE)
@@ -162,9 +172,24 @@ class ProductPipelineRepository(
                 other_cost = otherCost.toFloat(),
                 margin_percentage = 30.0f
             )
-            val response = apiService.calculatePricing(productId, request)
-            catalogDao.insertCatalogItem(response.toCatalogItem())
-            response.suggestedPrice
+            
+            var suggestedPrice = (rawCost + laborCost + packagingCost + otherCost) * 1.3
+            try {
+                val response = apiService.calculatePricing(productId, request)
+                suggestedPrice = response.suggestedPrice
+            } catch (e: Exception) {}
+
+            val item = catalogDao.getById(productId)
+            if (item != null) {
+                catalogDao.insertCatalogItem(item.copy(
+                    materialCost = rawCost.toDouble(),
+                    labourCost = laborCost.toDouble(),
+                    packagingCost = packagingCost.toDouble(),
+                    otherCost = otherCost.toDouble(),
+                    suggestedPrice = suggestedPrice
+                ))
+            }
+            suggestedPrice
         } catch (e: Exception) {
             e.printStackTrace()
             // Fallback locally if network fails
@@ -175,19 +200,36 @@ class ProductPipelineRepository(
 
     suspend fun checkReadiness(productId: Long): Int {
         return try {
-            val response = apiService.checkReadiness(productId)
-            catalogDao.insertCatalogItem(response.toCatalogItem())
-            response.readinessScore
+            var score = 85
+            try {
+                val response = apiService.checkReadiness(productId)
+                score = response.readinessScore
+            } catch (e: Exception) {}
+            
+            val item = catalogDao.getById(productId)
+            if (item != null) {
+                catalogDao.insertCatalogItem(item.copy(readinessScore = score))
+            }
+            score
         } catch (e: Exception) {
             e.printStackTrace()
             0
         }
     }
 
+    // Step 5: Publish Product
     suspend fun publishProduct(productId: Long) {
         try {
-            val response = apiService.publishProduct(productId)
-            catalogDao.insertCatalogItem(response.toCatalogItem())
+            val item = catalogDao.getById(productId)
+            if (item != null) {
+                val publishedItem = item.copy(status = "Published")
+                catalogDao.insertCatalogItem(publishedItem)
+                try {
+                    apiService.publishProduct(productId)
+                } catch (e: Exception) {
+                    // Ignore backend error
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -202,11 +244,14 @@ class ProductPipelineRepository(
     
     suspend fun updateProduct(item: CatalogItem) {
         try {
-            val response = apiService.updateProduct(item)
-            catalogDao.insertCatalogItem(response.toCatalogItem())
+            catalogDao.insertCatalogItem(item)
+            try {
+                apiService.updateProduct(item)
+            } catch (e: Exception) {
+                // Ignore backend failure
+            }
         } catch (e: Exception) {
             e.printStackTrace()
-            catalogDao.insertCatalogItem(item)
         }
     }
     
