@@ -113,6 +113,8 @@ fun CatalogScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
 
+            var selectedProduct by remember { mutableStateOf<ProductDraft?>(null) }
+            
             if (filteredCatalog.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text("No products found.", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -128,10 +130,7 @@ fun CatalogScreen(
                         CatalogProductCard(
                             product = product,
                             onClick = {
-                                if (product.status == "Published") {
-                                    // Navigate to details
-                                    onNavigate("ProductDetail/${product.id}")
-                                }
+                                selectedProduct = product
                             },
                             onDelete = {
                                 viewModel.deleteProduct(product.id.toString())
@@ -139,6 +138,72 @@ fun CatalogScreen(
                         )
                     }
                     item { Spacer(modifier = Modifier.height(100.dp)) } // padding for bottom nav
+                }
+            }
+            
+            selectedProduct?.let { product ->
+                androidx.compose.ui.window.Dialog(onDismissRequest = { selectedProduct = null }) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .verticalScroll(rememberScrollState())
+                        ) {
+                            val imageUri = product.enhancedImageUri ?: product.imageUri
+                            if (imageUri != null) {
+                                coil.compose.AsyncImage(
+                                    model = java.io.File(imageUri),
+                                    contentDescription = product.name,
+                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(250.dp)
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                )
+                            }
+                            
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = product.name.ifEmpty { "Untitled Product" },
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "${product.category} • ${product.status}",
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("Price:", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("₹${product.recommendedPrice}", color = Color(0xFFF59E0B), fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text("Description", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = product.description.ifEmpty { "No description available." },
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Button(
+                                onClick = { selectedProduct = null },
+                                modifier = Modifier.fillMaxWidth().height(50.dp)
+                            ) {
+                                Text("Close")
+                            }
+                        }
+                    }
                 }
             }
         }

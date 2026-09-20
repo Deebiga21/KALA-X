@@ -55,7 +55,7 @@ data class AnalyzeImageRequest(val labels: String)
 
 interface KalaXApiService {
     @POST("/api/products")
-    suspend fun createProduct(): ProductResponse
+    suspend fun createProduct(@Body request: CreateProductRequest): ProductResponse
 
     @Multipart
     @POST("/api/products/{id}/image")
@@ -71,7 +71,7 @@ interface KalaXApiService {
     suspend fun processVoice(@Path("id") id: Long, @Body request: VoiceRequest): ProductResponse
 
     @POST("/api/products/{id}/generate-catalog")
-    suspend fun generateCatalog(@Path("id") id: Long): ProductResponse
+    suspend fun generateCatalog(@Path("id") id: Long, @Body request: GenerateCatalogRequest): ProductResponse
 
     @POST("/api/products/{id}/pricing")
     suspend fun calculatePricing(@Path("id") id: Long, @Body request: PricingRequest): ProductResponse
@@ -114,4 +114,13 @@ data class PricingRequest(
     val packaging_cost: Float,
     val other_cost: Float,
     val margin_percentage: Float = 30.0f
+)
+
+data class CreateProductRequest(
+    val name: String,
+    val description: String? = null
+)
+
+data class GenerateCatalogRequest(
+    val transcription: String
 )

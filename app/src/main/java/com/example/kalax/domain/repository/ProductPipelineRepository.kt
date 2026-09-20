@@ -45,7 +45,8 @@ class ProductPipelineRepository(
     // Step 1: Create session
     suspend fun createProductSession(): Long {
         return try {
-            val response = apiService.createProduct()
+            val request = com.example.kalax.data.remote.CreateProductRequest(name = "New Draft")
+            val response = apiService.createProduct(request)
             val item = response.toCatalogItem()
             catalogDao.insertCatalogItem(item)
             item.id
@@ -112,7 +113,8 @@ class ProductPipelineRepository(
     // Step 4: Generate Catalog
     suspend fun generateCatalog(productId: Long, transcription: String) {
         try {
-            val response = apiService.generateCatalog(productId)
+            val request = com.example.kalax.data.remote.GenerateCatalogRequest(transcription)
+            val response = apiService.generateCatalog(productId, request)
             catalogDao.insertCatalogItem(response.toCatalogItem())
         } catch (e: Exception) {
             e.printStackTrace()

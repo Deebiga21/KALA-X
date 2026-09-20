@@ -114,15 +114,23 @@ def upload_voice(id: int, file: UploadFile = File(...), db: Session = Depends(ge
     db.refresh(product)
     return product
 
+class GenerateCatalogInput(schemas.BaseModel):
+    transcription: str = ""
+
 @app.post("/api/products/{id}/generate-catalog", response_model=schemas.ProductResponse)
-def generate_catalog_endpoint(id: int, db: Session = Depends(get_db)):
+def generate_catalog_endpoint(id: int, req: GenerateCatalogInput, db: Session = Depends(get_db)):
     product = db.query(models.Product).filter(models.Product.id == id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
         
+    # Use transcription if provided, else use existing description
+    description = req.transcription if req.transcription else (product.description or "")
+    if req.transcription:
+        product.description = req.transcription
+        
     cat_res = catalog_service.generate_catalog(
         product.name, 
-        product.description or "", 
+        description, 
         product.material or ""
     )
     product.catalog_title = cat_res["catalog_title"]
